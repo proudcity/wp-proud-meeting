@@ -1,0 +1,9 @@
+.bootstrap-datetimepicker-widget,
+.dropdown-menu {
+    margin-left: 150px !important;
+    z-index: 1001 !important;
+}
+
+.gform_media_link {
+    display: none !important;
+}

@@ -25,7 +25,7 @@ class ProudMeeting extends \ProudPlugin {
       'plugin_path'    => __FILE__,
     ) );
 
-    $this->post_type = 'proud_meeting';
+    $this->post_type = 'meeting';
     $this->taxonomy = 'meeting-taxonomy';
 
     $this->hook( 'init', 'create_meeting' );
@@ -92,7 +92,7 @@ class ProudMeeting extends \ProudPlugin {
   }
 
   public function meeting_rest_support() {
-    register_rest_field( 'proud_meeting',
+    register_rest_field( 'meeting',
           'meta',
           array(
               'get_callback'    => array( $this, 'meeting_rest_metadata' ),
@@ -116,16 +116,17 @@ new ProudMeeting;
 // MeetingAddress meta box
 class MeetingDetails extends \ProudMetaBox {
 
-  public $options = [  // Meta options, key => default                             
+  public $options = [  // Meta options, key => default
     'datetime' => '',
     'location' => '',
+    'agency' => '',
   ];
 
   public function __construct() {
-    parent::__construct( 
+    parent::__construct(
       'meeting_datetime', // key
       'Details', // title
-      'proud_meeting', // screen
+      'meeting', // screen
       'normal',  // position
       'high' // priority
     );
@@ -143,16 +144,56 @@ class MeetingDetails extends \ProudMetaBox {
       return;
     }
 
+    // Get locations
+    $locations = get_posts( [
+      'post_type' => 'proud_location',
+      'orderby' => 'post_title',
+      'posts_per_page' => 1000
+    ] );
+    $location_options = ['' => '- Select one -'];
+    if( !empty( $locations ) && empty( $locations['errors'] ) ) {
+      foreach ( $locations as $location ) {
+        $location_options[$location->ID] = $location->post_title;
+      }
+    }
+
+    // Get Agencies
+    $agencies = get_posts( [
+      'post_type' => 'agency',
+      'orderby' => 'post_title',
+      'posts_per_page' => 1000
+    ] );
+    $agency_options = ['' => '- Select one -'];
+    if( !empty( $agencies ) && empty( $agencies['errors'] ) ) {
+      foreach ( $agencies as $agency ) {
+        $agency_options[$agency->ID] = $agency->post_title;
+      }
+    }
+
     $this->fields = [
       'datetime' => [
         '#type' => 'text',
         '#title' => __pcHelp('Date and Time'),
       ],
+      'location' => [
+        '#type' => 'select',
+        '#options' => $location_options,
+        '#title' => __pcHelp('Location'),
+        '#description' => __pcHelp('<a href="/wp-admin/edit.php?post_type=proud_location" target="_blank">Manage Locations</a>'),
+      ],
+      'agency' => [
+        '#type' => 'select',
+        '#options' => $agency_options,
+        '#title' => _x( 'Agency', 'post type singular name', 'wp-agency' ),
+        '#description' => __pcHelp('<a href="/wp-admin/edit.php?post_type=proud_location" target="_blank">Manage '. _x( 'Agencies', 'post name', 'wp-agency' ) .'</a>'),
+      ],
+
+
       //@todo: location
     ];
   }
 
-  /** 
+  /**
    * Saves form values
    */
   public function save_meta( $post_id, $post, $update ) {
@@ -179,7 +220,7 @@ class MeetingAgenda extends \ProudMetaBox {
     parent::__construct(
       'meeting_agenda', // key
       'Agenda', // title
-      'proud_meeting', // screen
+      'meeting', // screen
       'normal',  // position
       'high' // priority
     );
@@ -242,7 +283,7 @@ class MeetingMinutes extends \ProudMetaBox {
     parent::__construct(
       'meeting_minutes', // key
       'Minutes', // title
-      'proud_meeting', // screen
+      'meeting', // screen
       'normal',  // position
       'high' // priority
     );
@@ -294,13 +335,14 @@ class MeetingVideo extends \ProudMetaBox {
 
   public $options = [  // Meta options, key => default
     'video' => '',
+    'youtube_bookmarks' => '',
   ];
 
   public function __construct() {
     parent::__construct(
       'meeting_video', // key
       'Video', // title
-      'proud_meeting', // screen
+      'meeting', // screen
       'normal',  // position
       'high' // priority
     );
@@ -317,18 +359,22 @@ class MeetingVideo extends \ProudMetaBox {
     if( $displaying ) {
       return;
     }
+    $path = plugins_url('assets/', __FILE__);
 
     $this->fields = [
       'video' => [
         '#type' => 'text',
-        '#title' => __pcHelp('Video'),
-        '#description' =>  __pcHelp('Enter the URL of your YouTube video or YouTube playlist'),
+        '#title' => __pcHelp('YouTube Video'),
+        '#description' =>  __pcHelp('Enter the URL or ID of the YouTube video'),
       ],
-      'video_player' => [
+      'youtube_bookmarks' => [
+        '#title' => __pcHelp('bookmarks'),
+        '#type' => 'text',
+      ],
+      'youtube_bookmarks_html' => [
         '#type' => 'html',
-        '#html' => '<div id="video-placeholder"></div>',
+        '#html' => file_get_contents(__DIR__ . '/assets/html/youtube-bookmarks.php'),
       ],
-
     ];
   }
 
@@ -340,19 +386,21 @@ class MeetingVideo extends \ProudMetaBox {
     parent::settings_content( $post );
     // Enqueue JS
     $path = plugins_url('assets/', __FILE__);
-    wp_enqueue_script( 'moment-js', $path . 'bootstrap-datetimepicker/moment.min.js' );
+    wp_enqueue_script( 'moment-js', $path . 'vendor/bootstrap-datetimepicker/moment.min.js' );
     wp_enqueue_style( 'glyphicons-css', '//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css' );
-    wp_enqueue_script( 'bootstrap-datetimepicker-js', $path . 'bootstrap-datetimepicker/bootstrap-datetimepicker.min.js' );
-    wp_enqueue_style( 'bootstrap-datetimepicker-css', $path . 'bootstrap-datetimepicker/bootstrap-datetimepicker.min.css' );
+    wp_enqueue_script( 'bootstrap-datetimepicker-js', $path . 'vendor/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js' );
+    wp_enqueue_style( 'bootstrap-datetimepicker-css', $path . 'vendor/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css' );
     wp_enqueue_script( 'youtube-api', '//www.youtube.com/iframe_api' );
+    wp_enqueue_script( 'handlebars', $path . 'vendor/handlebars.min.js' );
     wp_enqueue_style( 'proud-meeting-css', $path . 'css/proud-meeting.css' );
     wp_enqueue_script( 'proud-meeting-js', $path . 'js/proud-meeting.js' );
+    wp_enqueue_script( 'proud-meeting-youtube-bookmarks-js', $path . 'js/youtube-bookmarks.js' );
 //    // Get field ids
 //    $options = $this->get_field_ids();
 //    // Set global lat / lng
 //    $options['lat'] = get_option('lat', true);
 //    $options['lng'] = get_option('lng', true);
-//    wp_localize_script( 'google-places-field', 'proud_meeting', $options );
+//    wp_localize_script( 'google-places-field', 'meeting', $options );
 //    wp_enqueue_script( 'google-places-field' );
 
   }
@@ -384,7 +432,7 @@ if( is_admin() )
 //    parent::__construct(
 //      'meeting_description', // key
 //      'Description', // title
-//      'proud_meeting', // screen
+//      'meeting', // screen
 //      'normal',  // position
 //      'high' // priority
 //    );

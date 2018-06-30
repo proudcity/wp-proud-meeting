@@ -7,3 +7,35 @@
 .gform_media_link {
     display: none !important;
 }
+
+#meeting_video-1-form-meeting_video-1-youtube_bookmarks,
+.youtube-hidden {
+    display: none;
+}
+
+.youtube-player-wrapper iframe {
+    max-width: 100% !important;
+}
+
+#form-meeting_video-1-video {
+    width: 350px !important;
+}
+
+.margin-bottom {
+    margin-bottom: 20px;
+}
+
+#youtube-list button.close {
+    margin-left: 10px;
+    line-height: 15px;
+}
+
+#youtube-new .input-group-addon {
+    padding: 6px;
+    font-size: 12px;
+}
+
+#youtube-new input.input-youtube-time {
+    width: 80px !important;
+    height: 40px;
+}

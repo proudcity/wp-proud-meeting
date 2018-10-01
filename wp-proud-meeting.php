@@ -245,7 +245,7 @@ class MeetingAgenda extends \ProudMetaBox {
 //      ],
       'agenda' => [
         '#type' => 'editor',
-        '#title' => __pcHelp('Agenda'),
+        '#title' => __pcHelp('Agenda Text'),
       ],
       'agenda_attachment' => [
         '#type' => 'select_file',
@@ -304,7 +304,7 @@ class MeetingMinutes extends \ProudMetaBox {
     $this->fields = [
       'minutes' => [
         '#type' => 'editor',
-        '#title' => __pcHelp('Minutes'),
+        '#title' => __pcHelp('Minutes Text'),
       ],
       'minutes_attachment' => [
         '#type' => 'select_file',

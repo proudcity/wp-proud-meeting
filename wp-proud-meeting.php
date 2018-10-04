@@ -214,12 +214,13 @@ class MeetingAgenda extends \ProudMetaBox {
   public $options = [  // Meta options, key => default
     'agenda' => '',
     'agenda_attachment' => '',
+    'agenda_attachment_preview' => '1',
   ];
 
   public function __construct() {
     parent::__construct(
       'meeting_agenda', // key
-      'Agenda', // title
+      'Agenda Packet', // title
       'meeting', // screen
       'normal',  // position
       'high' // priority
@@ -251,6 +252,14 @@ class MeetingAgenda extends \ProudMetaBox {
         '#type' => 'select_file',
         '#title' => __pcHelp('Attachment'),
       ],
+      'agenda_attachment_preview' => [
+        '#type' => 'checkbox',
+        '#title' => 'Show preview',
+        '#replace_title' => 'Show the embedded document preview',
+        '#default_value' => '1',
+        '#return_value' => '1',
+      ],
+
     ];
   }
 
@@ -277,6 +286,7 @@ class MeetingMinutes extends \ProudMetaBox {
   public $options = [  // Meta options, key => default
     'minutes' => '',
     'minutes_attachment' => '',
+    'minutes_attachment_preview' => '1',
   ];
 
   public function __construct() {
@@ -309,6 +319,13 @@ class MeetingMinutes extends \ProudMetaBox {
       'minutes_attachment' => [
         '#type' => 'select_file',
         '#title' => __pcHelp('Attachment'),
+      ],
+      'agenda_attachment_preview' => [
+        '#type' => 'checkbox',
+        '#title' => 'Show preview',
+        '#replace_title' => 'Show the embedded document preview',
+        '#default_value' => '1',
+        '#return_value' => '1',
       ],
     ];
   }

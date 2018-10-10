@@ -347,7 +347,7 @@ if( is_admin() )
 
 
 
-// MeetingAddress meta box
+// MeetingVideo meta box
 class MeetingVideo extends \ProudMetaBox {
 
   public $options = [  // Meta options, key => default
@@ -437,36 +437,59 @@ class MeetingVideo extends \ProudMetaBox {
 if( is_admin() )
   new MeetingVideo;
 
-//
-//
-//// Meeting desc meta box (empty for body)
-//class MeetingDescription extends \ProudMetaBox {
-//
-//  public $options = [  // Meta options, key => default
-//  ];
-//
-//  public function __construct() {
-//    parent::__construct(
-//      'meeting_description', // key
-//      'Description', // title
-//      'meeting', // screen
-//      'normal',  // position
-//      'high' // priority
-//    );
-//  }
-//
-//  /**
-//   * Called on form creation
-//   * @param $displaying : false if just building form, true if about to display
-//   * Use displaying:true to do any difficult loading that should only occur when
-//   * the form actually will display
-//   */
-//  public function set_fields( $displaying ) {
-//    $this->fields = [];
-//  }
-//}
-//if( is_admin() )
-//  new MeetingDescription;
+// MeetingAudio meta box
+class MeetingAudio extends \ProudMetaBox {
+
+  public $options = [  // Meta options, key => default
+    'audio' => '',
+  ];
+
+  public function __construct() {
+    parent::__construct(
+      'meeting_audio', // key
+      'Audio', // title
+      'meeting', // screen
+      'normal',  // position
+      'high' // priority
+    );
+  }
+
+  /**
+   * Called on form creation
+   * @param $displaying : false if just building form, true if about to display
+   * Use displaying:true to do any difficult loading that should only occur when
+   * the form actually will display
+   */
+  public function set_fields( $displaying ) {
+    // Already set, no loading necessary
+    if( $displaying ) {
+      return;
+    }
+    $path = plugins_url('assets/', __FILE__);
+
+    $this->fields = [
+      'audio' => [
+        '#type' => 'text',
+        '#title' => __pcHelp('SoundCloud Embed Code'),
+        '#placeholder' => '<iframe ...',
+        '#description' =>  __pcHelp('Enter the Embed Code by clicking on Share>Embed within SoundCloud. <a href="https://help.soundcloud.com/hc/en-us/articles/115003565128-Embedding-a-track-or-playlist-on-WordPress" target="_blank">Learn more</a>.'),
+      ]
+    ];
+  }
+
+  /**
+   * Saves form values
+   */
+  public function save_meta( $post_id, $post, $update ) {
+    // Grab form values from Request
+    $values = $this->validate_values( $post );
+    if( !empty( $values ) ) {
+      $this->save_all( $values, $post_id );
+    }
+  }
+}
+if( is_admin() )
+  new MeetingAudio;
 
 
 // Meeting desc meta box (empty for body)

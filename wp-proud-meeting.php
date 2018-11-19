@@ -320,7 +320,7 @@ class MeetingMinutes extends \ProudMetaBox {
         '#type' => 'select_file',
         '#title' => __pcHelp('Attachment'),
       ],
-      'agenda_attachment_preview' => [
+      'minutes_attachment_preview' => [
         '#type' => 'checkbox',
         '#title' => 'Show preview',
         '#replace_title' => 'Show the embedded document preview',

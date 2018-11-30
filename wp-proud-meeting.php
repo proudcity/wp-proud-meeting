@@ -472,7 +472,7 @@ class MeetingAudio extends \ProudMetaBox {
         '#type' => 'text',
         '#title' => __pcHelp('SoundCloud Embed Code'),
         '#placeholder' => '<iframe ...',
-        '#description' =>  __pcHelp('Enter the Embed Code by clicking on Share>Embed within SoundCloud. <a href="https://help.soundcloud.com/hc/en-us/articles/115003565128-Embedding-a-track-or-playlist-on-WordPress" target="_blank">Learn more</a>.'),
+        '#description' =>  __pcHelp('Enter the Embed Code by clicking on Share > Embed within SoundCloud. <a href="https://help.soundcloud.com/hc/en-us/articles/115003565128-Embedding-a-track-or-playlist-on-WordPress" target="_blank">Learn more</a>.'),
       ]
     ];
   }

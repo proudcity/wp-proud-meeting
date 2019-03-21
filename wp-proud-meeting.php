@@ -214,6 +214,7 @@ class MeetingAgenda extends \ProudMetaBox {
   public $options = [  // Meta options, key => default
     'agenda' => '',
     'agenda_attachment' => '',
+    'agenda_attachment_meta' => '',
     'agenda_attachment_preview' => '1',
   ];
 
@@ -252,6 +253,9 @@ class MeetingAgenda extends \ProudMetaBox {
         '#type' => 'select_file',
         '#title' => __pcHelp('Attachment'),
       ],
+      'agenda_attachment_meta' => [
+        '#type' => 'hidden',
+      ],
       'agenda_attachment_preview' => [
         '#type' => 'checkbox',
         '#title' => 'Show preview',
@@ -286,6 +290,7 @@ class MeetingMinutes extends \ProudMetaBox {
   public $options = [  // Meta options, key => default
     'minutes' => '',
     'minutes_attachment' => '',
+    'minutes_attachment_meta' => '',
     'minutes_attachment_preview' => '1',
   ];
 
@@ -319,6 +324,9 @@ class MeetingMinutes extends \ProudMetaBox {
       'minutes_attachment' => [
         '#type' => 'select_file',
         '#title' => __pcHelp('Attachment'),
+      ],
+      'minutes_attachment_meta' => [
+        '#type' => 'hidden',
       ],
       'minutes_attachment_preview' => [
         '#type' => 'checkbox',

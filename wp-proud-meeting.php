@@ -267,16 +267,28 @@ class MeetingAgenda extends \ProudMetaBox {
     ];
   }
 
-
   /**
    * Saves form values
    */
   public function save_meta( $post_id, $post, $update ) {
-    // Grab form values from Request
-    $values = $this->validate_values( $post );
-    if( !empty( $values ) ) {
-      $this->save_all( $values, $post_id );
-    }
+      // Grab form values from Request
+      $values = $this->validate_values( $post );
+
+      if ( !empty( $values ) ) {
+          // Build file meta info for elastic
+          // @TODO add processing for non-stateless
+          if ( !empty( $values['agenda_attachment'] ) ) {
+              $stateless_meta = \Proud\Core\getStatelessFileMeta( $values['agenda_attachment'] );
+
+              try {
+                  $values['agenda_attachment_meta'] = json_encode( $stateless_meta );
+              } catch ( \Exception $e ) {
+                  error_log($e);
+              }
+          }
+
+          $this->save_all( $values, $post_id );
+      }
   }
 }
 if( is_admin() )
@@ -343,11 +355,24 @@ class MeetingMinutes extends \ProudMetaBox {
    * Saves form values
    */
   public function save_meta( $post_id, $post, $update ) {
-    // Grab form values from Request
-    $values = $this->validate_values( $post );
-    if( !empty( $values ) ) {
-      $this->save_all( $values, $post_id );
-    }
+      // Grab form values from Request
+      $values = $this->validate_values( $post );
+
+      if ( !empty( $values ) ) {
+          // Build file meta info for elastic
+          // @TODO add processing for non-stateless
+          if ( !empty( $values['minutes_attachment'] ) ) {
+              $stateless_meta = \Proud\Core\getStatelessFileMeta( $values['minutes_attachment'] );
+
+              try {
+                  $values['minutes_attachment_meta'] = json_encode( $stateless_meta );
+              } catch ( \Exception $e ) {
+                  error_log($e);
+              }
+          }
+
+          $this->save_all( $values, $post_id );
+      }
   }
 }
 if( is_admin() )

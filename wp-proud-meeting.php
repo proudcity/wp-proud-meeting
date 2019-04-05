@@ -214,6 +214,7 @@ class MeetingAgenda extends \ProudMetaBox {
   public $options = [  // Meta options, key => default
     'agenda' => '',
     'agenda_attachment' => '',
+    'agenda_attachment_meta' => '',
     'agenda_attachment_preview' => '1',
   ];
 
@@ -252,6 +253,9 @@ class MeetingAgenda extends \ProudMetaBox {
         '#type' => 'select_file',
         '#title' => __pcHelp('Attachment'),
       ],
+      'agenda_attachment_meta' => [
+        '#type' => 'hidden',
+      ],
       'agenda_attachment_preview' => [
         '#type' => 'checkbox',
         '#title' => 'Show preview',
@@ -263,16 +267,28 @@ class MeetingAgenda extends \ProudMetaBox {
     ];
   }
 
-
   /**
    * Saves form values
    */
   public function save_meta( $post_id, $post, $update ) {
-    // Grab form values from Request
-    $values = $this->validate_values( $post );
-    if( !empty( $values ) ) {
-      $this->save_all( $values, $post_id );
-    }
+      // Grab form values from Request
+      $values = $this->validate_values( $post );
+
+      if ( !empty( $values ) ) {
+          // Build file meta info for elastic
+          // @TODO add processing for non-stateless
+          if ( !empty( $values['agenda_attachment'] ) ) {
+              $stateless_meta = \Proud\Core\getStatelessFileMeta( $values['agenda_attachment'] );
+
+              try {
+                  $values['agenda_attachment_meta'] = json_encode( $stateless_meta );
+              } catch ( \Exception $e ) {
+                  error_log($e);
+              }
+          }
+
+          $this->save_all( $values, $post_id );
+      }
   }
 }
 if( is_admin() )
@@ -286,6 +302,7 @@ class MeetingMinutes extends \ProudMetaBox {
   public $options = [  // Meta options, key => default
     'minutes' => '',
     'minutes_attachment' => '',
+    'minutes_attachment_meta' => '',
     'minutes_attachment_preview' => '1',
   ];
 
@@ -320,6 +337,9 @@ class MeetingMinutes extends \ProudMetaBox {
         '#type' => 'select_file',
         '#title' => __pcHelp('Attachment'),
       ],
+      'minutes_attachment_meta' => [
+        '#type' => 'hidden',
+      ],
       'minutes_attachment_preview' => [
         '#type' => 'checkbox',
         '#title' => 'Show preview',
@@ -335,11 +355,24 @@ class MeetingMinutes extends \ProudMetaBox {
    * Saves form values
    */
   public function save_meta( $post_id, $post, $update ) {
-    // Grab form values from Request
-    $values = $this->validate_values( $post );
-    if( !empty( $values ) ) {
-      $this->save_all( $values, $post_id );
-    }
+      // Grab form values from Request
+      $values = $this->validate_values( $post );
+
+      if ( !empty( $values ) ) {
+          // Build file meta info for elastic
+          // @TODO add processing for non-stateless
+          if ( !empty( $values['minutes_attachment'] ) ) {
+              $stateless_meta = \Proud\Core\getStatelessFileMeta( $values['minutes_attachment'] );
+
+              try {
+                  $values['minutes_attachment_meta'] = json_encode( $stateless_meta );
+              } catch ( \Exception $e ) {
+                  error_log($e);
+              }
+          }
+
+          $this->save_all( $values, $post_id );
+      }
   }
 }
 if( is_admin() )

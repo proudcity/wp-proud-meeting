@@ -185,7 +185,7 @@ class MeetingDetails extends \ProudMetaBox {
         '#type' => 'select',
         '#options' => $agency_options,
         '#title' => _x( 'Agency', 'post type singular name', 'wp-agency' ),
-        '#description' => __pcHelp('<a href="/wp-admin/edit.php?post_type=proud_location" target="_blank">Manage '. _x( 'Agencies', 'post name', 'wp-agency' ) .'</a>'),
+        '#description' => __pcHelp('<a href="/wp-admin/edit.php?post_type=agency" target="_blank">Manage '. _x( 'Agencies', 'post name', 'wp-agency' ) .'</a>'),
       ],
 
 

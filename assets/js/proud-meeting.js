@@ -11,7 +11,7 @@
       // Enable datetimepicker
       // @todo: make this work
       $('#form-meeting_datetime-1-datetime').datetimepicker({
-        format:'YYYY-MM-DD HH:mm:ss',
+        format:'YYYY-MM-DD hh:mm a',
       });
 
 

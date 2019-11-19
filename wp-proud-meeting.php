@@ -199,6 +199,8 @@ class MeetingDetails extends \ProudMetaBox {
   public function save_meta( $post_id, $post, $update ) {
     // Grab form values from Request
     $values = $this->validate_values( $post );
+
+    $values['datetime'] = date('Y-m-d H:i', strtotime($values['datetime']));
     if( !empty( $values ) ) {
       $this->save_all( $values, $post_id );
     }
@@ -431,6 +433,7 @@ class MeetingVideo extends \ProudMetaBox {
 
   /**
    * Prints form
+
    */
   public function settings_content( $post ) {
     parent::settings_content( $post );
@@ -462,6 +465,7 @@ class MeetingVideo extends \ProudMetaBox {
   public function save_meta( $post_id, $post, $update ) {
     // Grab form values from Request
     $values = $this->validate_values( $post );
+
     if( !empty( $values ) ) {
       $this->save_all( $values, $post_id );
     }

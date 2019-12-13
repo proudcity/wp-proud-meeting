@@ -200,7 +200,7 @@ class MeetingDetails extends \ProudMetaBox {
     // Grab form values from Request
     $values = $this->validate_values( $post );
 
-    $values['datetime'] = date('Y-m-d H:i', strtotime($values['datetime']));
+    $values['datetime'] = !empty(strtotime($values['datetime'])) ? date('Y-m-d H:i', strtotime($values['datetime'])) : '';
     if( !empty( $values ) ) {
       $this->save_all( $values, $post_id );
     }

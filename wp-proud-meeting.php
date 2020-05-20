@@ -223,7 +223,7 @@ class MeetingAgenda extends \ProudMetaBox {
   public function __construct() {
     parent::__construct(
       'meeting_agenda', // key
-      'Agenda Packet', // title
+      'Agenda', // title
       'meeting', // screen
       'normal',  // position
       'high' // priority
@@ -295,6 +295,89 @@ class MeetingAgenda extends \ProudMetaBox {
 }
 if( is_admin() )
   new MeetingAgenda;
+
+
+// MeetingAddress meta box
+class MeetingAgendaPacket extends \ProudMetaBox {
+
+    public $options = [  // Meta options, key => default
+      'agenda_packet' => '',
+      'agenda_packet_attachment' => '',
+      'agenda_packet_attachment_meta' => '',
+      'agenda_packet_attachment_preview' => '1',
+    ];
+  
+    public function __construct() {
+      parent::__construct(
+        'meeting_agenda_packet', // key
+        'Agenda Packet', // title
+        'meeting', // screen
+        'normal',  // position
+        'high' // priority
+      );
+    }
+  
+    /**
+     * Called on form creation
+     * @param $displaying : false if just building form, true if about to display
+     * Use displaying:true to do any difficult loading that should only occur when
+     * the form actually will display
+     */
+    public function set_fields( $displaying ) {
+      // Already set, no loading necessary
+      if( $displaying ) {
+        return;
+      }
+  
+      $this->fields = [
+        'agenda_packet' => [
+          '#type' => 'editor',
+          '#title' => __pcHelp('Agenda Packet Text'),
+        ],
+        'agenda_packet_attachment' => [
+          '#type' => 'select_file',
+          '#title' => __pcHelp('Attachment'),
+        ],
+        'agenda_packet_attachment_meta' => [
+          '#type' => 'hidden',
+        ],
+        'agenda_packet_attachment_preview' => [
+          '#type' => 'checkbox',
+          '#title' => 'Show preview',
+          '#replace_title' => 'Show the embedded document preview',
+          '#default_value' => '1',
+          '#return_value' => '1',
+        ],
+  
+      ];
+    }
+  
+    /**
+     * Saves form values
+     */
+    public function save_meta( $post_id, $post, $update ) {
+        // Grab form values from Request
+        $values = $this->validate_values( $post );
+  
+        if ( !empty( $values ) ) {
+            // Build file meta info for elastic
+            // @TODO add processing for non-stateless
+            if ( !empty( $values['agenda_packet_attachment'] ) ) {
+                $stateless_meta = \Proud\Core\getStatelessFileMeta( $values['agenda_packet_attachment'] );
+  
+                try {
+                    $values['agenda_packet_attachment_meta'] = json_encode( $stateless_meta );
+                } catch ( \Exception $e ) {
+                    error_log($e);
+                }
+            }
+  
+            $this->save_all( $values, $post_id );
+        }
+    }
+  }
+  if( is_admin() )
+    new MeetingAgendaPacket;
 
 
 

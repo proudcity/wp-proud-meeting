@@ -32,6 +32,7 @@ class ProudMeeting extends \ProudPlugin {
     $this->hook( 'rest_api_init', 'meeting_rest_support' );
     $this->hook( 'init', 'create_taxonomy' );
 
+    add_filter( 'wp_insert_post_data', array( $this, 'meeting_presave' ), '99', 2 );
   }
 
   public function create_meeting() {
@@ -107,9 +108,52 @@ class ProudMeeting extends \ProudPlugin {
    * Add metadata to the post response
    */
   public function meeting_rest_metadata( $object, $field_name, $request ) {
-
-
   }
+
+  /**
+   * Alter the post_content pre-save to add all of our metafields for searching
+   */
+  public function meeting_presave( $data , $postarr ) {
+        
+    // These are the fieldsets we care about
+    foreach(['datetime', 'agenda', 'agenda_packet', 'minutes'] as $field) {
+
+      $fields = reset($postarr["form-meeting_$field"]);
+      $title = ucfirst(str_replace('_', ' ', $field));
+
+      switch ($field) {
+        case 'datetime':
+          $data['post_content'] .= "Date and time: " . $fields['datetime'] . '<br/>';
+          $obj_location = get_post($fields['location']);
+          if (!empty($obj_location)) {
+            $data['post_content'] .= "Location: " . $obj_location->post_title . '<br/>';
+          }
+          $obj_agency = get_post($fields['agency']);
+          if (!empty($obj_agency)) {
+            $data['post_content'] .= "Department: " . $obj_agency->post_title . '<br/>';
+          }
+        break;
+
+        default:
+          $text = $fields[$field];
+          if (!empty($text)) {
+            $data['post_content'] .= '<h2>' . $title . '</h2>' . $text;
+          }
+    
+          $attachment = $fields[$field . '_attachment'];
+          if (!empty($text)) {
+            // @todo Alex save attachment to elastic
+          }
+        break;
+      }
+
+     
+
+    }
+
+    return $data;
+  }
+
 } // class
 new ProudMeeting;
 

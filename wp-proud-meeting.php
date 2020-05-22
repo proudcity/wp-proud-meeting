@@ -114,7 +114,11 @@ class ProudMeeting extends \ProudPlugin {
    * Alter the post_content pre-save to add all of our metafields for searching
    */
   public function meeting_presave( $data , $postarr ) {
-        
+
+    if ($data['post_type'] !== 'meeting') {
+        return $data;
+    }
+    
     // These are the fieldsets we care about
     foreach(['datetime', 'agenda', 'agenda_packet', 'minutes'] as $field) {
 

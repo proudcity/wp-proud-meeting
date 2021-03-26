@@ -517,8 +517,10 @@ if( is_admin() )
 class MeetingVideo extends \ProudMetaBox {
 
   public $options = [  // Meta options, key => default
+    'video_style' => '',
     'video' => '',
     'youtube_bookmarks' => '',
+    'external_video' => '',
   ];
 
   public function __construct() {
@@ -545,10 +547,42 @@ class MeetingVideo extends \ProudMetaBox {
     $path = plugins_url('assets/', __FILE__);
 
     $this->fields = [
+      'video_style' => [
+        '#title' => __( 'Video Type', 'wp-proud-core' ),
+        '#type'    => 'radios',
+        '#default_value'     => '',
+         '#options' => [
+          '' => __( 'Embedded Youtube Player', 'wp-proud-core' ),
+          'external' => __( 'Link out to external webpage', 'wp-proud-core' ),
+        ],
+      ],
       'video' => [
         '#type' => 'text',
         '#title' => __pcHelp('YouTube Video'),
         '#description' =>  __pcHelp('Enter the URL or ID of the YouTube video'),
+        '#states' => [
+          'visible' => [
+            'video_style' => [
+              'operator' => '!=',
+              'value' => ['external'],
+              'glue' => '&&'
+            ],
+          ],
+        ],
+      ],
+      'external_video' => [
+        '#type' => 'text',
+        '#title' => __pcHelp('External Video'),
+        '#description' =>  __pcHelp('Enter the URL to open in a new tab'),
+        '#states' => [
+          'visible' => [
+            'video_style' => [
+              'operator' => '==',
+              'value' => ['external'],
+              'glue' => '&&'
+            ],
+          ],
+        ],
       ],
       'youtube_bookmarks' => [
         '#title' => __pcHelp('bookmarks'),

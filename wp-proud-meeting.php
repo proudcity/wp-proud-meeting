@@ -33,7 +33,45 @@ class ProudMeeting extends \ProudPlugin {
     $this->hook( 'init', 'create_taxonomy' );
 
     add_filter( 'wp_insert_post_data', array( $this, 'meeting_presave' ), '99', 2 );
+
+	add_filter( 'manage_meeting_posts_columns', array( $this, 'set_meeting_columns' ) );
+	add_action( 'manage_meeting_posts_custom_columns', array( $this, 'set_meeting_author' ), 10, 2 );
   }
+
+	/**
+	 * Adds custom column to meetings so we can display who is hosting the meeting
+	 *
+	 * @since 2022.12.08
+	 * @author Curtis
+	 *
+	 * @param       array           $columns            required            Array of columns
+	 * @return      array           $columns                                Our modified array
+	 */
+	public function set_meeting_columns( $columns ){
+		$columns['author'] = 'Meeting Host';
+		return $columns;
+	}
+
+	/**
+	 * Sets the content in our custom column
+	 *
+	 * @since 2022.12.08
+	 * @author Curtis
+	 *
+	 * @param       string          $column         required            The column we need data for
+	 * @param       int             $post_id        required            the post we're currently looping through
+	 * @uses        get_post_field()                                    Retrieves field from wp_posts given value and post_id
+	 * @uses        get_the_author_meta()                               Returns author meta given value and author_id
+	 * @uses        absint()                                            no negative numbers
+	 */
+	public function set_meeting_author( $column, $post_id ){
+
+		if ( 'author' === $column ){
+			$author_id = get_post_field( 'post_author', absint( $post_id ) );
+			echo get_the_author_meta( 'display_name', absint( $author_id ) );
+		}
+
+	}
 
   public function create_meeting() {
       $labels = array(

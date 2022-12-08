@@ -3,7 +3,7 @@
 Plugin Name: Proud Meeting
 Plugin URI: http://proudcity.com/
 Description: Declares an Meeting custom post type.
-Version: 1.0
+Version: 2022.12.08.0745
 Author: ProudCity
 Author URI: http://proudcity.com/
 License: Affero GPL v3

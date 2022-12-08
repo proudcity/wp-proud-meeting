@@ -122,34 +122,38 @@ class ProudMeeting extends \ProudPlugin {
 		// These are the fieldsets we care about
 		foreach(['datetime', 'agenda', 'agenda_packet', 'minutes'] as $field) {
 
-			$fields = reset($postarr["form-meeting_$field"]);
-			$title = ucfirst(str_replace('_', ' ', $field));
+			if ( isset( $postarr["form-meeting_$field"] ) ){
 
-			switch ($field) {
-				case 'datetime':
-					$data['post_content'] .= "Date and time: " . $fields['datetime'] . '<br/>';
-					$obj_location = get_post($fields['location']);
-					if (!empty($obj_location)) {
-						$data['post_content'] .= "Location: " . $obj_location->post_title . '<br/>';
-					}
-					$obj_agency = get_post($fields['agency']);
-					if (!empty($obj_agency)) {
-						$data['post_content'] .= "Department: " . $obj_agency->post_title . '<br/>';
-					}
-				break;
+				$fields = reset($postarr["form-meeting_$field"]);
+				$title = ucfirst(str_replace('_', ' ', $field));
 
-				default:
-					$text = $fields[$field];
-					if (!empty($text)) {
-						$data['post_content'] .= '<h2>' . $title . '</h2>' . $text;
-					}
+				switch ($field) {
+					case 'datetime':
+						$data['post_content'] .= "Date and time: " . $fields['datetime'] . '<br/>';
+						$obj_location = get_post($fields['location']);
+						if (!empty($obj_location)) {
+							$data['post_content'] .= "Location: " . $obj_location->post_title . '<br/>';
+						}
+						$obj_agency = get_post($fields['agency']);
+						if (!empty($obj_agency)) {
+							$data['post_content'] .= "Department: " . $obj_agency->post_title . '<br/>';
+						}
+					break;
 
-					$attachment = $fields[$field . '_attachment'];
-					if (!empty($text)) {
-					// @todo Alex save attachment to elastic
-					}
-				break;
-			} //switch
+					default:
+						$text = $fields[$field];
+						if (!empty($text)) {
+							$data['post_content'] .= '<h2>' . $title . '</h2>' . $text;
+						}
+
+						$attachment = $fields[$field . '_attachment'];
+						if (!empty($text)) {
+						// @todo Alex save attachment to elastic
+						}
+					break;
+				} //switch
+
+			} // isset
 
 		} // foreach
 

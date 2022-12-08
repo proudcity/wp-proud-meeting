@@ -110,53 +110,51 @@ class ProudMeeting extends \ProudPlugin {
   public function meeting_rest_metadata( $object, $field_name, $request ) {
   }
 
-  /**
-   * Alter the post_content pre-save to add all of our metafields for searching
-   */
-  public function meeting_presave( $data , $postarr ) {
+	/**
+	 * Alter the post_content pre-save to add all of our metafields for searching
+	 */
+	public function meeting_presave( $data , $postarr ) {
 
-    if ($data['post_type'] !== 'meeting') {
-        return $data;
-    }
-    
-    // These are the fieldsets we care about
-    foreach(['datetime', 'agenda', 'agenda_packet', 'minutes'] as $field) {
+		if ($data['post_type'] !== 'meeting') {
+			return $data;
+		}
 
-      $fields = reset($postarr["form-meeting_$field"]);
-      $title = ucfirst(str_replace('_', ' ', $field));
+		// These are the fieldsets we care about
+		foreach(['datetime', 'agenda', 'agenda_packet', 'minutes'] as $field) {
 
-      switch ($field) {
-        case 'datetime':
-          $data['post_content'] .= "Date and time: " . $fields['datetime'] . '<br/>';
-          $obj_location = get_post($fields['location']);
-          if (!empty($obj_location)) {
-            $data['post_content'] .= "Location: " . $obj_location->post_title . '<br/>';
-          }
-          $obj_agency = get_post($fields['agency']);
-          if (!empty($obj_agency)) {
-            $data['post_content'] .= "Department: " . $obj_agency->post_title . '<br/>';
-          }
-        break;
+			$fields = reset($postarr["form-meeting_$field"]);
+			$title = ucfirst(str_replace('_', ' ', $field));
 
-        default:
-          $text = $fields[$field];
-          if (!empty($text)) {
-            $data['post_content'] .= '<h2>' . $title . '</h2>' . $text;
-          }
-    
-          $attachment = $fields[$field . '_attachment'];
-          if (!empty($text)) {
-            // @todo Alex save attachment to elastic
-          }
-        break;
-      }
+			switch ($field) {
+				case 'datetime':
+					$data['post_content'] .= "Date and time: " . $fields['datetime'] . '<br/>';
+					$obj_location = get_post($fields['location']);
+					if (!empty($obj_location)) {
+						$data['post_content'] .= "Location: " . $obj_location->post_title . '<br/>';
+					}
+					$obj_agency = get_post($fields['agency']);
+					if (!empty($obj_agency)) {
+						$data['post_content'] .= "Department: " . $obj_agency->post_title . '<br/>';
+					}
+				break;
 
-     
+				default:
+					$text = $fields[$field];
+					if (!empty($text)) {
+						$data['post_content'] .= '<h2>' . $title . '</h2>' . $text;
+					}
 
-    }
+					$attachment = $fields[$field . '_attachment'];
+					if (!empty($text)) {
+					// @todo Alex save attachment to elastic
+					}
+				break;
+			} //switch
 
-    return $data;
-  }
+		} // foreach
+
+		return $data;
+	}
 
 } // class
 new ProudMeeting;
@@ -358,7 +356,7 @@ class MeetingAgendaPacket extends \ProudMetaBox {
       'agenda_packet_attachment_meta' => '',
       'agenda_packet_attachment_preview' => '1',
     ];
-  
+
     public function __construct() {
       parent::__construct(
         'meeting_agenda_packet', // key
@@ -368,7 +366,7 @@ class MeetingAgendaPacket extends \ProudMetaBox {
         'high' // priority
       );
     }
-  
+
     /**
      * Called on form creation
      * @param $displaying : false if just building form, true if about to display
@@ -380,7 +378,7 @@ class MeetingAgendaPacket extends \ProudMetaBox {
       if( $displaying ) {
         return;
       }
-  
+
       $this->fields = [
         'agenda_packet' => [
           '#type' => 'editor',
@@ -400,30 +398,30 @@ class MeetingAgendaPacket extends \ProudMetaBox {
           '#default_value' => '1',
           '#return_value' => '1',
         ],
-  
+
       ];
     }
-  
+
     /**
      * Saves form values
      */
     public function save_meta( $post_id, $post, $update ) {
         // Grab form values from Request
         $values = $this->validate_values( $post );
-  
+
         if ( !empty( $values ) ) {
             // Build file meta info for elastic
             // @TODO add processing for non-stateless
             if ( !empty( $values['agenda_packet_attachment'] ) ) {
                 $stateless_meta = \Proud\Core\getStatelessFileMeta( $values['agenda_packet_attachment'] );
-  
+
                 try {
                     $values['agenda_packet_attachment_meta'] = json_encode( $stateless_meta );
                 } catch ( \Exception $e ) {
                     error_log($e);
                 }
             }
-  
+
             $this->save_all( $values, $post_id );
         }
     }
@@ -701,13 +699,13 @@ if( is_admin() )
 // Meeting desc meta box (empty for body)
 class MeetingCategory extends \ProudTermMetaBox {
 
-  public $options = [  // Meta options, key => default                             
+  public $options = [  // Meta options, key => default
     'icon' => '',
     'color' => '',
   ];
 
   public function __construct() {
-    parent::__construct( 
+    parent::__construct(
       'meeting-taxonomy', // key
       'Settings' // title
     );
@@ -738,7 +736,7 @@ class MeetingCategory extends \ProudTermMetaBox {
     }
     global $proudcore;
 
-    $this->fields = [  
+    $this->fields = [
       'icon' => [
         '#title' => 'Icon',
         '#type' => 'fa-icon',

@@ -68,7 +68,7 @@ class ProudMeeting extends \ProudPlugin {
 
 		if ( 'author' === $column ){
 			$author_id = get_post_field( 'post_author', absint( $post_id ) );
-			echo get_the_author_meta( 'display_name', absint( $author_id ) );
+			echo esc_attr( get_the_author_meta( 'display_name', absint( $author_id ) ) );
 		}
 
 	}

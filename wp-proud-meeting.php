@@ -3,7 +3,7 @@
 Plugin Name: Proud Meeting
 Plugin URI: http://proudcity.com/
 Description: Declares an Meeting custom post type.
-Version: 2022.12.08.0745
+Version: 2023.08.30.0732
 Author: ProudCity
 Author URI: http://proudcity.com/
 License: Affero GPL v3
@@ -73,45 +73,46 @@ class ProudMeeting extends \ProudPlugin {
 
 	}
 
-  public function create_meeting() {
-      $labels = array(
-          'name'               => _x( 'Meetings', 'post name', 'wp-meeting' ),
-          'singular_name'      => _x( 'Meeting', 'post type singular name', 'wp-meeting' ),
-          'menu_name'          => _x( 'Meetings', 'admin menu', 'wp-meeting' ),
-          'name_admin_bar'     => _x( 'Meeting', 'add new on admin bar', 'wp-meeting' ),
-          'add_new'            => _x( 'Add New', 'meeting', 'wp-meeting' ),
-          'add_new_item'       => __( 'Add New Meeting', 'wp-meeting' ),
-          'new_item'           => __( 'New Meeting', 'wp-meeting' ),
-          'edit_item'          => __( 'Edit Meeting', 'wp-meeting' ),
-          'view_item'          => __( 'View Meeting', 'wp-meeting' ),
-          'all_items'          => __( 'All Meetings', 'wp-meeting' ),
-          'search_items'       => __( 'Search meeting', 'wp-meeting' ),
-          'parent_item_colon'  => __( 'Parent meeting:', 'wp-meeting' ),
-          'not_found'          => __( 'No meetings found.', 'wp-meeting' ),
-          'not_found_in_trash' => __( 'No meetings found in Trash.', 'wp-meeting' )
-      );
+	public function create_meeting() {
+		$labels = array(
+			'name'               => _x( 'Meetings', 'post name', 'wp-meeting' ),
+			'singular_name'      => _x( 'Meeting', 'post type singular name', 'wp-meeting' ),
+			'menu_name'          => _x( 'Meetings', 'admin menu', 'wp-meeting' ),
+			'name_admin_bar'     => _x( 'Meeting', 'add new on admin bar', 'wp-meeting' ),
+			'add_new'            => _x( 'Add New', 'meeting', 'wp-meeting' ),
+			'add_new_item'       => __( 'Add New Meeting', 'wp-meeting' ),
+			'new_item'           => __( 'New Meeting', 'wp-meeting' ),
+			'edit_item'          => __( 'Edit Meeting', 'wp-meeting' ),
+			'view_item'          => __( 'View Meeting', 'wp-meeting' ),
+			'all_items'          => __( 'All Meetings', 'wp-meeting' ),
+			'search_items'       => __( 'Search meeting', 'wp-meeting' ),
+			'parent_item_colon'  => __( 'Parent meeting:', 'wp-meeting' ),
+			'not_found'          => __( 'No meetings found.', 'wp-meeting' ),
+			'not_found_in_trash' => __( 'No meetings found in Trash.', 'wp-meeting' )
+		);
 
-      $args = array(
-          'labels'             => $labels,
-          'description'        => __( 'Description.', 'wp-meeting' ),
-          'public'             => true,
-          'publicly_queryable' => true,
-          'show_ui'            => true,
-          'show_in_menu'       => true,
-          'query_var'          => true,
-          'rewrite'            => array( 'slug' => 'meetings' ),
-          'capability_type'    => 'post',
-          'has_archive'        => false,
-          'hierarchical'       => false,
-          'menu_position'      => null,
-          'show_in_rest'       => true,
-          'rest_base'          => 'meetings',
-          'rest_controller_class' => 'WP_REST_Posts_Controller',
-          'supports'           => array( 'title', 'thumbnail',)
-      );
+		$args = array(
+			'labels'             => $labels,
+			'description'        => __( 'Description.', 'wp-meeting' ),
+			'public'             => true,
+			'publicly_queryable' => true,
+			'show_ui'            => true,
+			'show_in_menu'       => true,
+			'menu_icon' 		=> 'dashicons-groups',
+			'query_var'          => true,
+			'rewrite'            => array( 'slug' => 'meetings' ),
+			'capability_type'    => 'post',
+			'has_archive'        => false,
+			'hierarchical'       => false,
+			'menu_position'      => null,
+			'show_in_rest'       => true,
+			'rest_base'          => 'meetings',
+			'rest_controller_class' => 'WP_REST_Posts_Controller',
+			'supports'           => array( 'title', 'thumbnail',)
+		);
 
-      register_post_type( $this->post_type, $args );
-  }
+		register_post_type( $this->post_type, $args );
+	}
 
   function create_taxonomy() {
     register_taxonomy(

@@ -25,8 +25,8 @@ class ProudMeeting extends \ProudPlugin {
       'plugin_path'    => __FILE__,
     ) );
 
-    $this->post_type = 'meeting';
-    $this->taxonomy = 'meeting-taxonomy';
+    //$this->post_type = 'meeting';
+    //$this->taxonomy = 'meeting-taxonomy';
 
     $this->hook( 'init', 'create_meeting' );
     $this->hook( 'rest_api_init', 'meeting_rest_support' );
@@ -111,13 +111,13 @@ class ProudMeeting extends \ProudPlugin {
 			'supports'           => array( 'title', 'thumbnail',)
 		);
 
-		register_post_type( $this->post_type, $args );
+		register_post_type( 'meeting', $args );
 	}
 
   function create_taxonomy() {
     register_taxonomy(
-        $this->taxonomy,
-        $this->post_type,
+        'meeting-taxonomy',
+        'meeting',
         array(
             'labels' => array(
                 'name' => 'Meeting Categories',

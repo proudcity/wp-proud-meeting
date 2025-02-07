@@ -14,7 +14,20 @@ echo '<?xml version="1.0" encoding="' . get_option('blog_charset') . '"?' . '>';
             'post_type'      => 'meeting',
             'posts_per_page' => 10,
             'post_status'    => 'publish',
+            'meta_key' => 'datetime',
+            'orderby' => 'meta_value',
+            'order' => 'ASC',
+            'meta_type' => 'DATETIME',
+            'meta_query' => array(
+                array(
+                    'key' => 'datetime',
+                    'value' => date('Y-m-d'),
+                    'compare' => '>=',
+                    'type' => 'DATETIME'
+                )
+            ),
         );
+
 $meetings = new WP_Query($args);
 
 while ($meetings->have_posts()) : $meetings->the_post();

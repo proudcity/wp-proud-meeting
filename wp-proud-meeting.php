@@ -1,5 +1,5 @@
 <?php
-/*
+/**
 Plugin Name: Proud Meeting
 Plugin URI: http://proudcity.com/
 Description: Declares an Meeting custom post type.
@@ -16,6 +16,9 @@ namespace Proud\Meeting;
 if (! class_exists('ProudPlugin')) {
     require_once(plugin_dir_path(__FILE__) . '../wp-proud-core/proud-plugin.class.php');
 }
+
+
+require_once plugin_dir_path(__FILE__) .'/inc/meeting-settings.php';
 
 class ProudMeeting extends \ProudPlugin
 {
@@ -114,7 +117,7 @@ class ProudMeeting extends \ProudPlugin
             'publicly_queryable' => true,
             'show_ui'            => true,
             'show_in_menu'       => true,
-            'menu_icon' 		=> 'dashicons-groups',
+            'menu_icon'         => 'dashicons-groups',
             'query_var'          => true,
             'rewrite'            => array( 'slug' => 'meetings', 'feeds' => true, 'with_front' => false ),
             'capability_type'    => 'post',
@@ -847,6 +850,18 @@ class MeetingCategory extends \ProudTermMetaBox
             '#html' => '<style type="text/css">.term-description-wrap { display: none; }</style>',
           ],
         ];
+    }
+
+    /**
+     * Includes extra files
+     *
+     * @since  2025.10.21
+     * @author Curtis <curtis@proudcity.com>
+     *
+     * @return null
+     */
+    public function includes()
+    {
     }
 
 }

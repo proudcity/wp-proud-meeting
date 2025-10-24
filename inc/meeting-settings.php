@@ -73,9 +73,6 @@ class ProudMeetingSettings
      */
     public function renderMeetingSettingsPage()
     {
-        echo '<pre>time display:';
-        print_r( get_option('meetings_time_display'));
-        echo '</pre>';
     ?>
     <div class="wrap">
         <h1>Meetings Settings</h1>

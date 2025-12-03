@@ -3,7 +3,7 @@
 Plugin Name: Proud Meeting
 Plugin URI: http://proudcity.com/
 Description: Declares an Meeting custom post type.
-Version: 2025.10.24.1300
+Version: 2025.12.03.1136
 Author: ProudCity
 Author URI: http://proudcity.com/
 License: Affero GPL v3
@@ -227,644 +227,655 @@ class ProudMeeting extends \ProudPlugin
 new ProudMeeting();
 
 // MeetingAddress meta box
-class MeetingDetails extends \ProudMetaBox
-{
-    public $options = [  // Meta options, key => default
-      'datetime' => '',
-      'location' => '',
-      'agency' => '',
-    ];
-
-    public function __construct()
+if (class_exists('ProudMetaBox')) {
+    class MeetingDetails extends \ProudMetaBox
     {
-        parent::__construct(
-            'meeting_datetime', // key
-            'Details', // title
-            'meeting', // screen
-            'normal',  // position
-            'high' // priority
-        );
-    }
-
-    /**
-     * Called on form creation
-     * @param $displaying : false if just building form, true if about to display
-     * Use displaying:true to do any difficult loading that should only occur when
-     * the form actually will display
-     */
-    public function set_fields($displaying)
-    {
-        // Already set, no loading necessary
-        if ($displaying) {
-            return;
-        }
-
-        // Get locations
-        $locations = get_posts([
-          'post_type' => 'proud_location',
-          'orderby' => 'post_title',
-          'posts_per_page' => 1000
-        ]);
-        $location_options = ['' => '- Select one -'];
-        if (!empty($locations) && empty($locations['errors'])) {
-            foreach ($locations as $location) {
-                $location_options[$location->ID] = $location->post_title;
-            }
-        }
-
-        // Get Agencies
-        $agencies = get_posts([
-          'post_type' => 'agency',
-          'orderby' => 'post_title',
-          'posts_per_page' => 1000
-        ]);
-        $agency_options = ['' => '- Select one -'];
-        if (!empty($agencies) && empty($agencies['errors'])) {
-            foreach ($agencies as $agency) {
-                $agency_options[$agency->ID] = $agency->post_title;
-            }
-        }
-
-        $this->fields = [
-          'datetime' => [
-            '#type' => 'text',
-            '#title' => __pcHelp('Date and Time'),
-          ],
-          'location' => [
-            '#type' => 'select',
-            '#options' => $location_options,
-            '#title' => __pcHelp('Location'),
-            '#description' => __pcHelp('<a href="/wp-admin/edit.php?post_type=proud_location" target="_blank">Manage Locations</a>'),
-          ],
-          'agency' => [
-            '#type' => 'select',
-            '#options' => $agency_options,
-            '#title' => _x('Agency', 'post type singular name', 'wp-agency'),
-            '#description' => __pcHelp('<a href="/wp-admin/edit.php?post_type=agency" target="_blank">Manage '. _x('Agencies', 'post name', 'wp-agency') .'</a>'),
-          ],
-
-
-          //@todo: location
+        public $options = [  // Meta options, key => default
+        'datetime' => '',
+        'location' => '',
+        'agency' => '',
         ];
-    }
 
-    /**
-     * Saves form values
-     */
-    public function save_meta($post_id, $post, $update)
-    {
-        // Grab form values from Request
-        $values = $this->validate_values($post);
-
-        // let's make sure we have a value before we try to do anything with it
-        if (isset($values['datetime']) && ! empty($values['datetime'])) {
-            $values['datetime'] = !empty(strtotime($values['datetime'])) ? date('Y-m-d H:i', strtotime($values['datetime'])) : '';
+        public function __construct()
+        {
+            parent::__construct(
+                'meeting_datetime', // key
+                'Details', // title
+                'meeting', // screen
+                'normal',  // position
+                'high' // priority
+            );
         }
 
-        if (!empty($values)) {
-            $this->save_all($values, $post_id);
+        /**
+        * Called on form creation
+        * @param $displaying : false if just building form, true if about to display
+        * Use displaying:true to do any difficult loading that should only occur when
+        * the form actually will display
+        */
+        public function set_fields($displaying)
+        {
+            // Already set, no loading necessary
+            if ($displaying) {
+                return;
+            }
+
+            // Get locations
+            $locations = get_posts([
+            'post_type' => 'proud_location',
+            'orderby' => 'post_title',
+            'posts_per_page' => 1000
+            ]);
+            $location_options = ['' => '- Select one -'];
+            if (!empty($locations) && empty($locations['errors'])) {
+                foreach ($locations as $location) {
+                    $location_options[$location->ID] = $location->post_title;
+                }
+            }
+
+            // Get Agencies
+            $agencies = get_posts([
+            'post_type' => 'agency',
+            'orderby' => 'post_title',
+            'posts_per_page' => 1000
+            ]);
+            $agency_options = ['' => '- Select one -'];
+            if (!empty($agencies) && empty($agencies['errors'])) {
+                foreach ($agencies as $agency) {
+                    $agency_options[$agency->ID] = $agency->post_title;
+                }
+            }
+
+            $this->fields = [
+            'datetime' => [
+                '#type' => 'text',
+                '#title' => __pcHelp('Date and Time'),
+            ],
+            'location' => [
+                '#type' => 'select',
+                '#options' => $location_options,
+                '#title' => __pcHelp('Location'),
+                '#description' => __pcHelp('<a href="/wp-admin/edit.php?post_type=proud_location" target="_blank">Manage Locations</a>'),
+            ],
+            'agency' => [
+                '#type' => 'select',
+                '#options' => $agency_options,
+                '#title' => _x('Agency', 'post type singular name', 'wp-agency'),
+                '#description' => __pcHelp('<a href="/wp-admin/edit.php?post_type=agency" target="_blank">Manage '. _x('Agencies', 'post name', 'wp-agency') .'</a>'),
+            ],
+
+
+            //@todo: location
+            ];
+        }
+
+        /**
+        * Saves form values
+        */
+        public function save_meta($post_id, $post, $update)
+        {
+            // Grab form values from Request
+            $values = $this->validate_values($post);
+
+            // let's make sure we have a value before we try to do anything with it
+            if (isset($values['datetime']) && ! empty($values['datetime'])) {
+                $values['datetime'] = !empty(strtotime($values['datetime'])) ? date('Y-m-d H:i', strtotime($values['datetime'])) : '';
+            }
+
+            if (!empty($values)) {
+                $this->save_all($values, $post_id);
+            }
         }
     }
-}
-if (is_admin()) {
-    new MeetingDetails();
+    if (is_admin()) {
+        new MeetingDetails();
+    }
 }
 
 
 // MeetingAddress meta box
-class MeetingAgenda extends \ProudMetaBox
-{
-    public $options = [  // Meta options, key => default
-      'agenda' => '',
-      'agenda_attachment' => '',
-      'agenda_attachment_meta' => '',
-      'agenda_attachment_preview' => '1',
-    ];
-
-    public function __construct()
+if (class_exists('ProudMetaBox')) {
+    class MeetingAgenda extends \ProudMetaBox
     {
-        parent::__construct(
-            'meeting_agenda', // key
-            'Agenda', // title
-            'meeting', // screen
-            'normal',  // position
-            'high' // priority
-        );
-    }
+        public $options = [  // Meta options, key => default
+        'agenda' => '',
+        'agenda_attachment' => '',
+        'agenda_attachment_meta' => '',
+        'agenda_attachment_preview' => '1',
+        ];
 
-    /**
-     * Called on form creation
-     * @param $displaying : false if just building form, true if about to display
-     * Use displaying:true to do any difficult loading that should only occur when
-     * the form actually will display
-     */
-    public function set_fields($displaying)
-    {
-        // Already set, no loading necessary
-        if ($displaying) {
-            return;
+        public function __construct()
+        {
+            parent::__construct(
+                'meeting_agenda', // key
+                'Agenda', // title
+                'meeting', // screen
+                'normal',  // position
+                'high' // priority
+            );
         }
 
-        $this->fields = [
-//      'agenda_wrapper' => [
-//        '#type' => 'html',
-//        '#html' => '<div id="agenda-wrapper"></div>'
-//      ],
-          'agenda' => [
-            '#type' => 'editor',
-            '#title' => __pcHelp('Agenda Text'),
-          ],
-          'agenda_attachment' => [
-            '#type' => 'select_file',
-            '#title' => __pcHelp('Attachment'),
-          ],
-          'agenda_attachment_meta' => [
-            '#type' => 'hidden',
-          ],
-          'agenda_attachment_preview' => [
-            '#type' => 'checkbox',
-            '#title' => 'Show preview',
-            '#replace_title' => 'Show the embedded document preview',
-            '#default_value' => '1',
-            '#return_value' => '1',
-          ],
-
-        ];
-    }
-
-    /**
-     * Saves form values
-     */
-    public function save_meta($post_id, $post, $update)
-    {
-        // Grab form values from Request
-        $values = $this->validate_values($post);
-
-        if (!empty($values)) {
-            // Build file meta info for elastic
-            // @TODO add processing for non-stateless
-            if (!empty($values['agenda_attachment'])) {
-                $stateless_meta = \Proud\Core\getStatelessFileMeta($values['agenda_attachment']);
-
-                try {
-                    $values['agenda_attachment_meta'] = json_encode($stateless_meta);
-                } catch (\Exception $e) {
-                    error_log($e);
-                }
+        /**
+        * Called on form creation
+        * @param $displaying : false if just building form, true if about to display
+        * Use displaying:true to do any difficult loading that should only occur when
+        * the form actually will display
+        */
+        public function set_fields($displaying)
+        {
+            // Already set, no loading necessary
+            if ($displaying) {
+                return;
             }
 
-            $this->save_all($values, $post_id);
+            $this->fields = [
+    //      'agenda_wrapper' => [
+    //        '#type' => 'html',
+    //        '#html' => '<div id="agenda-wrapper"></div>'
+    //      ],
+            'agenda' => [
+                '#type' => 'editor',
+                '#title' => __pcHelp('Agenda Text'),
+            ],
+            'agenda_attachment' => [
+                '#type' => 'select_file',
+                '#title' => __pcHelp('Attachment'),
+            ],
+            'agenda_attachment_meta' => [
+                '#type' => 'hidden',
+            ],
+            'agenda_attachment_preview' => [
+                '#type' => 'checkbox',
+                '#title' => 'Show preview',
+                '#replace_title' => 'Show the embedded document preview',
+                '#default_value' => '1',
+                '#return_value' => '1',
+            ],
+
+            ];
+        }
+
+        /**
+        * Saves form values
+        */
+        public function save_meta($post_id, $post, $update)
+        {
+            // Grab form values from Request
+            $values = $this->validate_values($post);
+
+            if (!empty($values)) {
+                // Build file meta info for elastic
+                // @TODO add processing for non-stateless
+                if (!empty($values['agenda_attachment'])) {
+                    $stateless_meta = \Proud\Core\getStatelessFileMeta($values['agenda_attachment']);
+
+                    try {
+                        $values['agenda_attachment_meta'] = json_encode($stateless_meta);
+                    } catch (\Exception $e) {
+                        error_log($e);
+                    }
+                }
+
+                $this->save_all($values, $post_id);
+            }
         }
     }
-}
-if (is_admin()) {
-    new MeetingAgenda();
+    if (is_admin()) {
+        new MeetingAgenda();
+    }
 }
 
 
 // MeetingAddress meta box
-class MeetingAgendaPacket extends \ProudMetaBox
-{
-    public $options = [  // Meta options, key => default
-      'agenda_packet' => '',
-      'agenda_packet_attachment' => '',
-      'agenda_packet_attachment_meta' => '',
-      'agenda_packet_attachment_preview' => '1',
-    ];
-
-    public function __construct()
+if (class_exists('ProudMetaBox')) {
+    class MeetingAgendaPacket extends \ProudMetaBox
     {
-        parent::__construct(
-            'meeting_agenda_packet', // key
-            'Agenda Packet', // title
-            'meeting', // screen
-            'normal',  // position
-            'high' // priority
-        );
-    }
+        public $options = [  // Meta options, key => default
+        'agenda_packet' => '',
+        'agenda_packet_attachment' => '',
+        'agenda_packet_attachment_meta' => '',
+        'agenda_packet_attachment_preview' => '1',
+        ];
 
-    /**
-     * Called on form creation
-     * @param $displaying : false if just building form, true if about to display
-     * Use displaying:true to do any difficult loading that should only occur when
-     * the form actually will display
-     */
-    public function set_fields($displaying)
-    {
-        // Already set, no loading necessary
-        if ($displaying) {
-            return;
+        public function __construct()
+        {
+            parent::__construct(
+                'meeting_agenda_packet', // key
+                'Agenda Packet', // title
+                'meeting', // screen
+                'normal',  // position
+                'high' // priority
+            );
         }
 
-        $this->fields = [
-          'agenda_packet' => [
-            '#type' => 'editor',
-            '#title' => __pcHelp('Agenda Packet Text'),
-          ],
-          'agenda_packet_attachment' => [
-            '#type' => 'select_file',
-            '#title' => __pcHelp('Attachment'),
-          ],
-          'agenda_packet_attachment_meta' => [
-            '#type' => 'hidden',
-          ],
-          'agenda_packet_attachment_preview' => [
-            '#type' => 'checkbox',
-            '#title' => 'Show preview',
-            '#replace_title' => 'Show the embedded document preview',
-            '#default_value' => '1',
-            '#return_value' => '1',
-          ],
-
-        ];
-    }
-
-    /**
-     * Saves form values
-     */
-    public function save_meta($post_id, $post, $update)
-    {
-        // Grab form values from Request
-        $values = $this->validate_values($post);
-
-        if (!empty($values)) {
-            // Build file meta info for elastic
-            // @TODO add processing for non-stateless
-            if (!empty($values['agenda_packet_attachment'])) {
-                $stateless_meta = \Proud\Core\getStatelessFileMeta($values['agenda_packet_attachment']);
-
-                try {
-                    $values['agenda_packet_attachment_meta'] = json_encode($stateless_meta);
-                } catch (\Exception $e) {
-                    error_log($e);
-                }
+        /**
+        * Called on form creation
+        * @param $displaying : false if just building form, true if about to display
+        * Use displaying:true to do any difficult loading that should only occur when
+        * the form actually will display
+        */
+        public function set_fields($displaying)
+        {
+            // Already set, no loading necessary
+            if ($displaying) {
+                return;
             }
 
-            $this->save_all($values, $post_id);
+            $this->fields = [
+            'agenda_packet' => [
+                '#type' => 'editor',
+                '#title' => __pcHelp('Agenda Packet Text'),
+            ],
+            'agenda_packet_attachment' => [
+                '#type' => 'select_file',
+                '#title' => __pcHelp('Attachment'),
+            ],
+            'agenda_packet_attachment_meta' => [
+                '#type' => 'hidden',
+            ],
+            'agenda_packet_attachment_preview' => [
+                '#type' => 'checkbox',
+                '#title' => 'Show preview',
+                '#replace_title' => 'Show the embedded document preview',
+                '#default_value' => '1',
+                '#return_value' => '1',
+            ],
+
+            ];
+        }
+
+        /**
+        * Saves form values
+        */
+        public function save_meta($post_id, $post, $update)
+        {
+            // Grab form values from Request
+            $values = $this->validate_values($post);
+
+            if (!empty($values)) {
+                // Build file meta info for elastic
+                // @TODO add processing for non-stateless
+                if (!empty($values['agenda_packet_attachment'])) {
+                    $stateless_meta = \Proud\Core\getStatelessFileMeta($values['agenda_packet_attachment']);
+
+                    try {
+                        $values['agenda_packet_attachment_meta'] = json_encode($stateless_meta);
+                    } catch (\Exception $e) {
+                        error_log($e);
+                    }
+                }
+
+                $this->save_all($values, $post_id);
+            }
         }
     }
+    if (is_admin()) {
+        new MeetingAgendaPacket();
+    }
 }
-if (is_admin()) {
-    new MeetingAgendaPacket();
-}
-
 
 
 // MeetingAddress meta box
-class MeetingMinutes extends \ProudMetaBox
-{
-    public $options = [  // Meta options, key => default
-      'minutes' => '',
-      'minutes_attachment' => '',
-      'minutes_attachment_meta' => '',
-      'minutes_attachment_preview' => '1',
-    ];
-
-    public function __construct()
+if (class_exists('ProudMetaBox')) {
+    class MeetingMinutes extends \ProudMetaBox
     {
-        parent::__construct(
-            'meeting_minutes', // key
-            'Minutes', // title
-            'meeting', // screen
-            'normal',  // position
-            'high' // priority
-        );
-    }
+        public $options = [  // Meta options, key => default
+        'minutes' => '',
+        'minutes_attachment' => '',
+        'minutes_attachment_meta' => '',
+        'minutes_attachment_preview' => '1',
+        ];
 
-    /**
-     * Called on form creation
-     * @param $displaying : false if just building form, true if about to display
-     * Use displaying:true to do any difficult loading that should only occur when
-     * the form actually will display
-     */
-    public function set_fields($displaying)
-    {
-        // Already set, no loading necessary
-        if ($displaying) {
-            return;
+        public function __construct()
+        {
+            parent::__construct(
+                'meeting_minutes', // key
+                'Minutes', // title
+                'meeting', // screen
+                'normal',  // position
+                'high' // priority
+            );
         }
 
-        $this->fields = [
-          'minutes' => [
-            '#type' => 'editor',
-            '#title' => __pcHelp('Minutes Text'),
-          ],
-          'minutes_attachment' => [
-            '#type' => 'select_file',
-            '#title' => __pcHelp('Attachment'),
-          ],
-          'minutes_attachment_meta' => [
-            '#type' => 'hidden',
-          ],
-          'minutes_attachment_preview' => [
-            '#type' => 'checkbox',
-            '#title' => 'Show preview',
-            '#replace_title' => 'Show the embedded document preview',
-            '#default_value' => '1',
-            '#return_value' => '1',
-          ],
-        ];
-    }
-
-
-    /**
-     * Saves form values
-     */
-    public function save_meta($post_id, $post, $update)
-    {
-        // Grab form values from Request
-        $values = $this->validate_values($post);
-
-        if (!empty($values)) {
-            // Build file meta info for elastic
-            // @TODO add processing for non-stateless
-            if (!empty($values['minutes_attachment'])) {
-                $stateless_meta = \Proud\Core\getStatelessFileMeta($values['minutes_attachment']);
-
-                try {
-                    $values['minutes_attachment_meta'] = json_encode($stateless_meta);
-                } catch (\Exception $e) {
-                    error_log($e);
-                }
+        /**
+        * Called on form creation
+        * @param $displaying : false if just building form, true if about to display
+        * Use displaying:true to do any difficult loading that should only occur when
+        * the form actually will display
+        */
+        public function set_fields($displaying)
+        {
+            // Already set, no loading necessary
+            if ($displaying) {
+                return;
             }
 
-            $this->save_all($values, $post_id);
+            $this->fields = [
+            'minutes' => [
+                '#type' => 'editor',
+                '#title' => __pcHelp('Minutes Text'),
+            ],
+            'minutes_attachment' => [
+                '#type' => 'select_file',
+                '#title' => __pcHelp('Attachment'),
+            ],
+            'minutes_attachment_meta' => [
+                '#type' => 'hidden',
+            ],
+            'minutes_attachment_preview' => [
+                '#type' => 'checkbox',
+                '#title' => 'Show preview',
+                '#replace_title' => 'Show the embedded document preview',
+                '#default_value' => '1',
+                '#return_value' => '1',
+            ],
+            ];
+        }
+
+
+        /**
+        * Saves form values
+        */
+        public function save_meta($post_id, $post, $update)
+        {
+            // Grab form values from Request
+            $values = $this->validate_values($post);
+
+            if (!empty($values)) {
+                // Build file meta info for elastic
+                // @TODO add processing for non-stateless
+                if (!empty($values['minutes_attachment'])) {
+                    $stateless_meta = \Proud\Core\getStatelessFileMeta($values['minutes_attachment']);
+
+                    try {
+                        $values['minutes_attachment_meta'] = json_encode($stateless_meta);
+                    } catch (\Exception $e) {
+                        error_log($e);
+                    }
+                }
+
+                $this->save_all($values, $post_id);
+            }
         }
     }
+    if (is_admin()) {
+        new MeetingMinutes();
+    }
 }
-if (is_admin()) {
-    new MeetingMinutes();
-}
-
 
 
 // MeetingVideo meta box
-class MeetingVideo extends \ProudMetaBox
-{
-    public $options = [  // Meta options, key => default
-      'video_style' => '',
-      'video' => '',
-      'youtube_bookmarks' => '',
-      'external_video' => '',
-    ];
-
-    public function __construct()
+if (class_exists('ProudMetaBox')) {
+    class MeetingVideo extends \ProudMetaBox
     {
-        parent::__construct(
-            'meeting_video', // key
-            'Video', // title
-            'meeting', // screen
-            'normal',  // position
-            'high' // priority
-        );
-    }
-
-    /**
-     * Called on form creation
-     * @param $displaying : false if just building form, true if about to display
-     * Use displaying:true to do any difficult loading that should only occur when
-     * the form actually will display
-     */
-    public function set_fields($displaying)
-    {
-        // Already set, no loading necessary
-        if ($displaying) {
-            return;
-        }
-        $path = plugins_url('assets/', __FILE__);
-
-        $this->fields = [
-          'video_style' => [
-            '#title' => __('Video Type', 'wp-proud-core'),
-            '#type'    => 'radios',
-            '#default_value'     => '',
-             '#options' => [
-              '' => __('Embedded Youtube Player', 'wp-proud-core'),
-              'external' => __('Link out to external webpage', 'wp-proud-core'),
-            ],
-          ],
-          'video' => [
-            '#type' => 'text',
-            '#title' => __pcHelp('YouTube Video'),
-            '#description' =>  __pcHelp('Enter the URL or ID of the YouTube video'),
-            '#states' => [
-              'visible' => [
-                'video_style' => [
-                  'operator' => '!=',
-                  'value' => ['external'],
-                  'glue' => '&&'
-                ],
-              ],
-            ],
-          ],
-          'external_video' => [
-            '#type' => 'text',
-            '#title' => __pcHelp('External Video'),
-            '#description' =>  __pcHelp('Enter the URL to open in a new tab'),
-            '#states' => [
-              'visible' => [
-                'video_style' => [
-                  'operator' => '==',
-                  'value' => ['external'],
-                  'glue' => '&&'
-                ],
-              ],
-            ],
-          ],
-          'youtube_bookmarks' => [
-            '#title' => __pcHelp('bookmarks'),
-            '#type' => 'text',
-          ],
-          'youtube_bookmarks_html' => [
-            '#type' => 'html',
-            '#html' => file_get_contents(__DIR__ . '/assets/html/youtube-bookmarks.php'),
-          ],
+        public $options = [  // Meta options, key => default
+        'video_style' => '',
+        'video' => '',
+        'youtube_bookmarks' => '',
+        'external_video' => '',
         ];
-    }
+
+        public function __construct()
+        {
+            parent::__construct(
+                'meeting_video', // key
+                'Video', // title
+                'meeting', // screen
+                'normal',  // position
+                'high' // priority
+            );
+        }
+
+        /**
+        * Called on form creation
+        * @param $displaying : false if just building form, true if about to display
+        * Use displaying:true to do any difficult loading that should only occur when
+        * the form actually will display
+        */
+        public function set_fields($displaying)
+        {
+            // Already set, no loading necessary
+            if ($displaying) {
+                return;
+            }
+            $path = plugins_url('assets/', __FILE__);
+
+            $this->fields = [
+            'video_style' => [
+                '#title' => __('Video Type', 'wp-proud-core'),
+                '#type'    => 'radios',
+                '#default_value'     => '',
+                '#options' => [
+                '' => __('Embedded Youtube Player', 'wp-proud-core'),
+                'external' => __('Link out to external webpage', 'wp-proud-core'),
+                ],
+            ],
+            'video' => [
+                '#type' => 'text',
+                '#title' => __pcHelp('YouTube Video'),
+                '#description' =>  __pcHelp('Enter the URL or ID of the YouTube video'),
+                '#states' => [
+                'visible' => [
+                    'video_style' => [
+                    'operator' => '!=',
+                    'value' => ['external'],
+                    'glue' => '&&'
+                    ],
+                ],
+                ],
+            ],
+            'external_video' => [
+                '#type' => 'text',
+                '#title' => __pcHelp('External Video'),
+                '#description' =>  __pcHelp('Enter the URL to open in a new tab'),
+                '#states' => [
+                'visible' => [
+                    'video_style' => [
+                    'operator' => '==',
+                    'value' => ['external'],
+                    'glue' => '&&'
+                    ],
+                ],
+                ],
+            ],
+            'youtube_bookmarks' => [
+                '#title' => __pcHelp('bookmarks'),
+                '#type' => 'text',
+            ],
+            'youtube_bookmarks_html' => [
+                '#type' => 'html',
+                '#html' => file_get_contents(__DIR__ . '/assets/html/youtube-bookmarks.php'),
+            ],
+            ];
+        }
 
 
-    /**
-     * Prints form
+        /**
+        * Prints form
 
-     */
-    public function settings_content($post)
-    {
-        parent::settings_content($post);
-        // Enqueue JS
-        $path = plugins_url('assets/', __FILE__);
-        wp_enqueue_script('moment-js', $path . 'vendor/bootstrap-datetimepicker/moment.min.js');
-        wp_enqueue_style('glyphicons-css', '//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css');
-        wp_enqueue_script('bootstrap-datetimepicker-js', $path . 'vendor/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js');
-        wp_enqueue_style('bootstrap-datetimepicker-css', $path . 'vendor/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css');
-        wp_enqueue_script('youtube-api', '//www.youtube.com/iframe_api');
-        wp_enqueue_script('handlebars', $path . 'vendor/handlebars.min.js');
-        wp_enqueue_style('proud-meeting-css', $path . 'css/proud-meeting.css');
-        wp_enqueue_script('proud-meeting-js', $path . 'js/proud-meeting.js');
-        wp_enqueue_script('proud-meeting-youtube-bookmarks-js', $path . 'js/youtube-bookmarks.js');
-        //    // Get field ids
-        //    $options = $this->get_field_ids();
-        //    // Set global lat / lng
-        //    $options['lat'] = get_option('lat', true);
-        //    $options['lng'] = get_option('lng', true);
-        //    wp_localize_script( 'google-places-field', 'meeting', $options );
-        //    wp_enqueue_script( 'google-places-field' );
+        */
+        public function settings_content($post)
+        {
+            parent::settings_content($post);
+            // Enqueue JS
+            $path = plugins_url('assets/', __FILE__);
+            wp_enqueue_script('moment-js', $path . 'vendor/bootstrap-datetimepicker/moment.min.js');
+            wp_enqueue_style('glyphicons-css', '//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css');
+            wp_enqueue_script('bootstrap-datetimepicker-js', $path . 'vendor/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js');
+            wp_enqueue_style('bootstrap-datetimepicker-css', $path . 'vendor/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css');
+            wp_enqueue_script('youtube-api', '//www.youtube.com/iframe_api');
+            wp_enqueue_script('handlebars', $path . 'vendor/handlebars.min.js');
+            wp_enqueue_style('proud-meeting-css', $path . 'css/proud-meeting.css');
+            wp_enqueue_script('proud-meeting-js', $path . 'js/proud-meeting.js');
+            wp_enqueue_script('proud-meeting-youtube-bookmarks-js', $path . 'js/youtube-bookmarks.js');
+            //    // Get field ids
+            //    $options = $this->get_field_ids();
+            //    // Set global lat / lng
+            //    $options['lat'] = get_option('lat', true);
+            //    $options['lng'] = get_option('lng', true);
+            //    wp_localize_script( 'google-places-field', 'meeting', $options );
+            //    wp_enqueue_script( 'google-places-field' );
 
-    }
+        }
 
 
-    /**
-     * Saves form values
-     */
-    public function save_meta($post_id, $post, $update)
-    {
-        // Grab form values from Request
-        $values = $this->validate_values($post);
+        /**
+        * Saves form values
+        */
+        public function save_meta($post_id, $post, $update)
+        {
+            // Grab form values from Request
+            $values = $this->validate_values($post);
 
-        if (!empty($values)) {
-            $this->save_all($values, $post_id);
+            if (!empty($values)) {
+                $this->save_all($values, $post_id);
+            }
         }
     }
-}
-if (is_admin()) {
-    new MeetingVideo();
+    if (is_admin()) {
+        new MeetingVideo();
+    }
 }
 
 // MeetingAudio meta box
-class MeetingAudio extends \ProudMetaBox
-{
-    public $options = [  // Meta options, key => default
-      'audio' => '',
-    ];
-
-    public function __construct()
+if (class_exists('ProudMetaBox')) {
+    class MeetingAudio extends \ProudMetaBox
     {
-        parent::__construct(
-            'meeting_audio', // key
-            'Audio', // title
-            'meeting', // screen
-            'normal',  // position
-            'high' // priority
-        );
-    }
-
-    /**
-     * Called on form creation
-     * @param $displaying : false if just building form, true if about to display
-     * Use displaying:true to do any difficult loading that should only occur when
-     * the form actually will display
-     */
-    public function set_fields($displaying)
-    {
-        // Already set, no loading necessary
-        if ($displaying) {
-            return;
-        }
-        $path = plugins_url('assets/', __FILE__);
-
-        $this->fields = [
-          'audio' => [
-            '#type' => 'text',
-            '#title' => __pcHelp('SoundCloud Embed Code'),
-            '#placeholder' => '<iframe ...',
-            '#description' =>  __pcHelp('Enter the Embed Code by clicking on Share > Embed within SoundCloud. <a href="https://help.soundcloud.com/hc/en-us/articles/115003565128-Embedding-a-track-or-playlist-on-WordPress" target="_blank">Learn more</a>.'),
-          ]
+        public $options = [  // Meta options, key => default
+        'audio' => '',
         ];
-    }
 
-    /**
-     * Saves form values
-     */
-    public function save_meta($post_id, $post, $update)
-    {
-        // Grab form values from Request
-        $values = $this->validate_values($post);
-        if (!empty($values)) {
-            $this->save_all($values, $post_id);
+        public function __construct()
+        {
+            parent::__construct(
+                'meeting_audio', // key
+                'Audio', // title
+                'meeting', // screen
+                'normal',  // position
+                'high' // priority
+            );
+        }
+
+        /**
+        * Called on form creation
+        * @param $displaying : false if just building form, true if about to display
+        * Use displaying:true to do any difficult loading that should only occur when
+        * the form actually will display
+        */
+        public function set_fields($displaying)
+        {
+            // Already set, no loading necessary
+            if ($displaying) {
+                return;
+            }
+            $path = plugins_url('assets/', __FILE__);
+
+            $this->fields = [
+            'audio' => [
+                '#type' => 'text',
+                '#title' => __pcHelp('SoundCloud Embed Code'),
+                '#placeholder' => '<iframe ...',
+                '#description' =>  __pcHelp('Enter the Embed Code by clicking on Share > Embed within SoundCloud. <a href="https://help.soundcloud.com/hc/en-us/articles/115003565128-Embedding-a-track-or-playlist-on-WordPress" target="_blank">Learn more</a>.'),
+            ]
+            ];
+        }
+
+        /**
+        * Saves form values
+        */
+        public function save_meta($post_id, $post, $update)
+        {
+            // Grab form values from Request
+            $values = $this->validate_values($post);
+            if (!empty($values)) {
+                $this->save_all($values, $post_id);
+            }
         }
     }
+    if (is_admin()) {
+        new MeetingAudio();
+    }
 }
-if (is_admin()) {
-    new MeetingAudio();
-}
-
 
 // Meeting desc meta box (empty for body)
-class MeetingCategory extends \ProudTermMetaBox
-{
-    public $options = [  // Meta options, key => default
-      'icon' => '',
-      'color' => '',
-    ];
-
-    public function __construct()
+if (class_exists('ProudMetaBox')) {
+    class MeetingCategory extends \ProudTermMetaBox
     {
-        parent::__construct(
-            'meeting-taxonomy', // key
-            'Settings' // title
-        );
-    }
-
-    private function colors()
-    {
-        return [
-          '' => ' - Select - ',
-          '#ED9356' => 'Orange',
-          '#456D9C' => 'Blue',
-          '#E76C6D' => 'Red',
-          '#5A97C4' => 'Dark blue',
-          '#4DC3FF' => 'Baby blue',
-          '#9BBF6A' => 'Green',
+        public $options = [  // Meta options, key => default
+        'icon' => '',
+        'color' => '',
         ];
-    }
 
-    /**
-     * Called on form creation
-     * @param $displaying : false if just building form, true if about to display
-     * Use displaying:true to do any difficult loading that should only occur when
-     * the form actually will display
-     */
-    public function set_fields($displaying)
-    {
-        // Already set, no loading necessary
-        if ($displaying) {
-            return;
+        public function __construct()
+        {
+            parent::__construct(
+                'meeting-taxonomy', // key
+                'Settings' // title
+            );
         }
-        global $proudcore;
 
-        $this->fields = [
-          'icon' => [
-            '#title' => 'Icon',
-            '#type' => 'fa-icon',
-            '#default_value' => '',
-            '#to_js_settings' => false
-          ],
-          'color' => [
-            '#title' => 'Color',
-            '#type' => 'select',
-            '#options' => $this->colors(),
-            '#default_value' => '',
-            '#to_js_settings' => false
-          ],
-          'markup' => [
-            '#type' => 'html',
-            '#html' => '<style type="text/css">.term-description-wrap { display: none; }</style>',
-          ],
-        ];
+        private function colors()
+        {
+            return [
+            '' => ' - Select - ',
+            '#ED9356' => 'Orange',
+            '#456D9C' => 'Blue',
+            '#E76C6D' => 'Red',
+            '#5A97C4' => 'Dark blue',
+            '#4DC3FF' => 'Baby blue',
+            '#9BBF6A' => 'Green',
+            ];
+        }
+
+        /**
+        * Called on form creation
+        * @param $displaying : false if just building form, true if about to display
+        * Use displaying:true to do any difficult loading that should only occur when
+        * the form actually will display
+        */
+        public function set_fields($displaying)
+        {
+            // Already set, no loading necessary
+            if ($displaying) {
+                return;
+            }
+            global $proudcore;
+
+            $this->fields = [
+            'icon' => [
+                '#title' => 'Icon',
+                '#type' => 'fa-icon',
+                '#default_value' => '',
+                '#to_js_settings' => false
+            ],
+            'color' => [
+                '#title' => 'Color',
+                '#type' => 'select',
+                '#options' => $this->colors(),
+                '#default_value' => '',
+                '#to_js_settings' => false
+            ],
+            'markup' => [
+                '#type' => 'html',
+                '#html' => '<style type="text/css">.term-description-wrap { display: none; }</style>',
+            ],
+            ];
+        }
+
+        /**
+        * Includes extra files
+        *
+        * @since  2025.10.21
+        * @author Curtis <curtis@proudcity.com>
+        *
+        * @return null
+        */
+        public function includes()
+        {
+        }
+
     }
-
-    /**
-     * Includes extra files
-     *
-     * @since  2025.10.21
-     * @author Curtis <curtis@proudcity.com>
-     *
-     * @return null
-     */
-    public function includes()
-    {
+    if (is_admin()) {
+        new MeetingCategory();
     }
-
-}
-if (is_admin()) {
-    new MeetingCategory();
 }

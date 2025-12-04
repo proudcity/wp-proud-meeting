@@ -60,7 +60,7 @@ class ProudMeetingSettings
             'edit.php?post_type=meeting',     // parent slug (Meetings CPT menu)
             'Meetings Settings',               // page title
             'Settings',                        // menu title
-            'manage_options',                  // capability
+            'proud_admin_cap',                  // capability
             'meetings-settings',               // menu slug
             array($this,'renderMeetingSettingsPage')    // callback
         );

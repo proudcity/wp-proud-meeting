@@ -10,6 +10,8 @@ Author URI: http://proudcity.com/
 License: Affero GPL v3
  */
 
+if (! defined('ABSPATH')) exit;
+
 namespace Proud\Meeting;
 
 // Load Extendible

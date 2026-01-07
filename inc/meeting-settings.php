@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Provides settings for Proud Meetings
  *
@@ -29,7 +30,6 @@ class ProudMeetingSettings
             self::$_instance = new ProudMeetingSettings();
             self::$_instance->init();
         }
-
     } // instance
 
     /**
@@ -44,7 +44,7 @@ class ProudMeetingSettings
     {
         add_action('admin_menu', array($this, 'meetingSettingsPage'));
 
-        add_action('admin_init', array($this, 'meetingsRegisterSettings') );
+        add_action('admin_init', array($this, 'meetingsRegisterSettings'));
     } // init
 
     /**
@@ -62,7 +62,7 @@ class ProudMeetingSettings
             'Settings',                        // menu title
             'proud_admin_cap',                  // capability
             'meetings-settings',               // menu slug
-            array($this,'renderMeetingSettingsPage')    // callback
+            array($this, 'renderMeetingSettingsPage')    // callback
         );
     }
 
@@ -73,30 +73,41 @@ class ProudMeetingSettings
      */
     public function renderMeetingSettingsPage()
     {
-    ?>
-    <div class="wrap">
-        <h1>Meetings Settings</h1>
-        <form method="post" action="options.php">
-            <?php settings_fields( 'meetings_settings_group' ); ?>
-            <?php do_settings_sections( 'meetings_settings_group' ); ?>
+?>
+        <div class="wrap">
+            <h1>Meetings Settings</h1>
+            <form method="post" action="options.php">
+                <?php settings_fields('meetings_settings_group'); ?>
+                <?php do_settings_sections('meetings_settings_group'); ?>
 
-            <table class="form-table">
-                <tr valign="top">
-                    <th scope="row"><label for="meetings_time_display">Meeting Publish and Modified Times</label></th>
-                    <td>
-                        <input type="checkbox" id="meetings_time_display" name="meetings_time_display"
-                            <?php checked('on', get_option('meetings_time_display'), true); ?>
-                               class="regular-text" />
-                        <p class="description">Show the published time and last modified time for a meeting.</p>
-                    </td>
-                </tr>
-            </table>
+                <table class="form-table">
+                    <tr valign="top">
+                        <th scope="row"><label for="meetings_time_display">Meeting Publish and Modified Times</label></th>
+                        <td>
+                            <input type="checkbox" id="meetings_time_display" name="meetings_time_display"
+                                <?php checked('on', get_option('meetings_time_display'), true); ?>
+                                class="regular-text" />
+                            <p class="description">Show the published time and last modified time for a meeting.</p>
+                        </td>
+                    </tr>
 
-            <?php submit_button(); ?>
-        </form>
-    </div>
-    <?php
-}
+                    <tr valign="top">
+                        <th scope="row"><label for="advanced_meetings_time_display">Advanced Meeting Publish and Modified Times</label></th>
+                        <td>
+                            <input type="checkbox" id="advanced_meetings_time_display" name="advanced_meetings_time_display"
+                                <?php checked('on', get_option('advanced_meetings_time_display'), true); ?>
+                                class="regular-text" />
+                            <p class="description">This will show that a meeting was updated if the Agenda, Agenda Packet, or Minutes text is updated or if the attachment field associated with each option is updated.</p>
+                        </td>
+                    </tr>
+
+                </table>
+
+                <?php submit_button(); ?>
+            </form>
+        </div>
+<?php
+    }
 
     /**
      * Registers the settings
@@ -105,9 +116,9 @@ class ProudMeetingSettings
      */
     function meetingsRegisterSettings()
     {
-        register_setting( 'meetings_settings_group', 'meetings_time_display' );
+        register_setting('meetings_settings_group', 'meetings_time_display');
+        register_setting('meetings_settings_group', 'advanced_meetings_time_display');
     }
-
 }
 
 ProudMeetingSettings::instance();

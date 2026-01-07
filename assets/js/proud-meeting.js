@@ -142,7 +142,7 @@
           });
       }
 
-      // ---- Use it ----
+      // Agenda tracking
       watchMetaBox('#meeting_agenda_meta_box', {
         nonce: (window.ProudMeeting && ProudMeeting.proudMeetingNonce) ? ProudMeeting.proudMeetingNonce : '',
         action: 'proud_track_metabox_change',
@@ -152,6 +152,25 @@
         }
       });
 
+      // Agenda Packet tracking
+      watchMetaBox('#meeting_agenda_packet_meta_box', {
+        nonce: (window.ProudMeeting && ProudMeeting.proudMeetingNonce) ? ProudMeeting.proudMeetingNonce : '',
+        action: 'proud_track_metabox_change',
+        metaKey: '_proud_meeting_modified',
+        onChange: function (info) {
+          $(info.container).addClass('has-changes');
+        }
+      });
+
+      // Minutes tracking
+      watchMetaBox('#meeting_minutes_meta_box', {
+        nonce: (window.ProudMeeting && ProudMeeting.proudMeetingNonce) ? ProudMeeting.proudMeetingNonce : '',
+        action: 'proud_track_metabox_change',
+        metaKey: '_proud_meeting_modified',
+        onChange: function (info) {
+          $(info.container).addClass('has-changes');
+        }
+      });
 
     }
   };

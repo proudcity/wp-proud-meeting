@@ -52,7 +52,7 @@ class ProudMeeting extends \ProudPlugin
 	public function track_meeting_modified()
 	{
 		check_ajax_referer('proud_track_metabox_change', 'nonce');
-		update_option('sfn_test', 'updating meeting ' . time());
+
 		$post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
 		if (! $post_id) {
 			wp_send_json_error('Missing post_id');
@@ -65,7 +65,7 @@ class ProudMeeting extends \ProudPlugin
 		$meta_key   = sanitize_key($_POST['meta_key'] ?? '');
 
 
-		update_post_meta(absint($post_id), esc_attr($meta_key), time());
+		update_post_meta(absint($post_id), esc_attr($meta_key), current_time('timestamp', true));
 
 		wp_send_json_success();
 	}

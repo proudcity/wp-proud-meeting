@@ -146,7 +146,7 @@
       watchMetaBox('#meeting_agenda_meta_box', {
         nonce: (window.ProudMeeting && ProudMeeting.proudMeetingNonce) ? ProudMeeting.proudMeetingNonce : '',
         action: 'proud_track_metabox_change',
-        metaKey: '_proud_meeting_modified',
+        metaKey: '_proud_meeting_agenda_modified',
         onChange: function (info) {
           $(info.container).addClass('has-changes');
         }
@@ -156,7 +156,7 @@
       watchMetaBox('#meeting_agenda_packet_meta_box', {
         nonce: (window.ProudMeeting && ProudMeeting.proudMeetingNonce) ? ProudMeeting.proudMeetingNonce : '',
         action: 'proud_track_metabox_change',
-        metaKey: '_proud_meeting_modified',
+        metaKey: '_proud_meeting_agenda_packet_modified',
         onChange: function (info) {
           $(info.container).addClass('has-changes');
         }
@@ -166,7 +166,7 @@
       watchMetaBox('#meeting_minutes_meta_box', {
         nonce: (window.ProudMeeting && ProudMeeting.proudMeetingNonce) ? ProudMeeting.proudMeetingNonce : '',
         action: 'proud_track_metabox_change',
-        metaKey: '_proud_meeting_modified',
+        metaKey: '_proud_meeting_minutes_modified',
         onChange: function (info) {
           $(info.container).addClass('has-changes');
         }

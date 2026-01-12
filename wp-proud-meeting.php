@@ -49,6 +49,12 @@ class ProudMeeting extends \ProudPlugin
 		add_action('wp_ajax_proud_track_metabox_change', array($this, 'track_meeting_modified'));
 	}
 
+	/**
+	 * Saves our meeting modified logs
+	 *
+	 * @since  2025.01.12
+	 * @author Curtis <curtis@proudcity.com>
+	 */
 	public function track_meeting_modified()
 	{
 		check_ajax_referer('proud_track_metabox_change', 'nonce');
@@ -64,10 +70,70 @@ class ProudMeeting extends \ProudPlugin
 
 		$meta_key   = sanitize_key($_POST['meta_key'] ?? '');
 
+		$timestamp = (int) current_time('timestamp', true);
+		$history = get_post_meta(absint($post_id), sanitize_key($meta_key), true);
 
-		update_post_meta(absint($post_id), esc_attr($meta_key), current_time('timestamp', true));
+		// Normalize to array.
+		if (empty($history)) {
+			$history = [];
+		} elseif (is_string($history)) {
+			// In case legacy code stored a single timestamp string.
+			$history = [(int) $history];
+		} elseif (! is_array($history)) {
+			// Any unexpected shape: reset to empty to avoid corrupting data.
+			$history = [];
+		}
+
+		$history[] = $timestamp;
+
+		update_post_meta(absint($post_id), sanitize_key($meta_key), $history);
 
 		wp_send_json_success();
+	}
+
+	public static function display_meeting_advanced_meeting_updates($post_id, $meta_key)
+	{
+		// exit early if we are not displaying advanced meeting update information
+		if ('on' !== get_option('advanced_meetings_time_display')) {
+			return;
+		}
+
+		$html = '';
+
+		$html .= '<div class="meeting-published-modified-date">';
+
+		$html .= '<p class="text-muted" id="published-date">Published on: ' . esc_html(get_the_time('F d, Y \a\t g:ia', absint($post_id))) . '</p>';
+
+		$html .= self::get_modified_array(absint($post_id), sanitize_key($meta_key));
+
+		$html .= '</div>';
+
+		return $html;
+	}
+
+	private static function get_modified_array($post_id, $meta_key)
+	{
+
+		$modified_array = get_post_meta(absint($post_id), sanitize_key($meta_key), true);
+
+		$html = '';
+
+		if (! is_array($modified_array)) {
+			return '';
+		}
+
+		$html .= '<p class="text-muted" id="published-date">Modified on:</p>';
+
+		$html .= '<ul>';
+
+		foreach ($modified_array as $modified_time) {
+			$html .= '<li class="text-muted">' . esc_html(wp_date('F d, Y \a\t g:i:s a', $modified_time)) . '</li>';
+		}
+
+		$html .= '</ul>';
+
+
+		return $html;
 	}
 
 	public function add_meeting_feed()
@@ -902,4 +968,16 @@ if (class_exists('ProudMetaBox')) {
 	if (is_admin()) {
 		new MeetingCategory();
 	}
+}
+
+/**
+ * Helper function
+ */
+function proud_meeting_advanced_updates($post_id, $meta_key)
+{
+	if (! class_exists(__NAMESPACE__ . '\ProudMeeting')) {
+		return '';
+	}
+
+	return ProudMeeting::display_meeting_advanced_meeting_updates($post_id, $meta_key);
 }

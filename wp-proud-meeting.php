@@ -84,11 +84,29 @@ class ProudMeeting extends \ProudPlugin
 			$history = [];
 		}
 
+		// Ensure we only have ints.
+		$history = array_values(array_filter(array_map('intval', $history)));
+
+		// If the new timestamp is within 2 minutes of ANY existing entry, drop it.
+		$window = 120; // seconds
+		foreach ($history as $t) {
+			if (abs($timestamp - $t) <= $window) {
+				wp_send_json_success([
+					'skipped'   => true,
+					'reason'    => 'within_2_minutes',
+					'timestamp' => $timestamp,
+				]);
+			}
+		}
+
 		$history[] = $timestamp;
 
 		update_post_meta(absint($post_id), sanitize_key($meta_key), $history);
 
-		wp_send_json_success();
+		wp_send_json_success([
+			'skipped'   => false,
+			'timestamp' => $timestamp,
+		]);
 	}
 
 	public static function display_meeting_advanced_meeting_updates($post_id, $meta_key)

@@ -51,11 +51,12 @@
           nonce: '',
           action: 'proud_track_metabox_change',
           metaKey: '_meeting_modified',
-          debounceMs: 600,
+          debounceMs: 3000,
           onChange: function () { }
         }, options || {});
 
-        var ns = '.proudWatch';
+        // making sure we have a unique ns var for each metabox
+        var ns = '.proudWatch' + containerSelector.replace(/[^a-z0-9]/gi, '_');
 
         function sendAjax(info) {
           // Even if nonce missing, still run onChange/class updates
@@ -109,10 +110,10 @@
             sendAjax(info);
           });
 
-        // ---- 3) TinyMCE Visual editor typing ----
-        function bindTinyMceIfPresent() {
-          var $ta = $container.find('.wp-editor-area').first();
-          if (!$ta.length) return;
+
+        // ---- 3) TinyMCE Visual editor typing (ALL editors in container) ----
+        function bindTinyMceForTextarea($ta) {
+          if (!$ta || !$ta.length) return;
 
           var editorId = $ta.attr('id');
           if (!editorId || !window.tinymce) return;
@@ -120,27 +121,61 @@
           var ed = tinymce.get(editorId);
           if (!ed) return; // not initialized yet
 
-          // Avoid double-binding
+          // Avoid double-binding per editor instance
           if (ed._proudWatchBound) return;
           ed._proudWatchBound = true;
 
-          ed.on('keyup change undo redo', function () {
-            var info = { type: 'editor', event: 'tinymce', target: $ta[0], container: $container[0] };
+          // Use a single handler (debounced) for typical TinyMCE activity
+          var handler = function () {
+            var info = {
+              type: 'editor',
+              event: 'tinymce',
+              target: $ta[0],
+              container: $container[0],
+              editorId: editorId
+            };
             markChanged(info);
             sendAjaxDebounced(info);
+          };
+
+          // Key events + content changes + undo/redo
+          ed.on('keyup change input undo redo SetContent paste cut', handler);
+
+          // Optional: when TinyMCE is removed/re-added (switching Visual/Text),
+          // allow rebinding by clearing the flag when editor is removed.
+          ed.on('remove', function () {
+            ed._proudWatchBound = false;
           });
         }
 
-        // Try now...
-        bindTinyMceIfPresent();
+        function bindAllTinyMceInContainer() {
+          $container.find('textarea.wp-editor-area').each(function () {
+            bindTinyMceForTextarea($(this));
+          });
+        }
 
-        // ...and also when WP initializes TinyMCE later
+        // Try now (for any editors already initialized)
+        bindAllTinyMceInContainer();
+
+        // Bind as WP initializes editors later.
+        // WP typically passes (event, editor) where editor is the TinyMCE instance.
         $(document)
           .off('tinymce-editor-init' + ns)
-          .on('tinymce-editor-init' + ns, function () {
-            bindTinyMceIfPresent();
+          .on('tinymce-editor-init' + ns, function (e, editor) {
+            // If WP provides the editor object, only bind if it lives in this container.
+            if (editor && editor.id) {
+              var $ta = $('#' + editor.id);
+              if ($ta.length && $.contains($container[0], $ta[0])) {
+                bindTinyMceForTextarea($ta);
+              }
+              return;
+            }
+
+            // Fallback: bind everything in the container
+            bindAllTinyMceInContainer();
           });
-      }
+
+      } // end watchMetaBox
 
       // Agenda tracking
       watchMetaBox('#meeting_agenda_meta_box', {
@@ -172,7 +207,9 @@
         }
       });
 
-    }
+
+    } // end Proud.behaviors.proud_meeting
   };
 })(jQuery, Proud);
+
 

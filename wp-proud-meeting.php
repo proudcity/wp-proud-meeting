@@ -154,7 +154,7 @@ class ProudMeeting extends \ProudPlugin
 		$html .= '<ul>';
 
 		foreach ($modified_array as $modified_time) {
-			$html .= '<li class="text-muted">' . esc_html(wp_date('F d, Y \a\t g:i:s a', $modified_time)) . '</li>';
+			$html .= '<li class="text-muted">' . esc_html(wp_date('F d, Y \a\t g:i a', $modified_time)) . '</li>';
 		}
 
 		$html .= '</ul>';

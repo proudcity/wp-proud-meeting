@@ -4,7 +4,7 @@
 Plugin Name: Proud Meeting
 Plugin URI: http://proudcity.com/
 Description: Declares an Meeting custom post type.
-Version: 2026.01.12.1518
+Version: 2026.01.13.1202
 Author: ProudCity
 Author URI: http://proudcity.com/
 License: Affero GPL v3
@@ -161,6 +161,22 @@ class ProudMeeting extends \ProudPlugin
 
 
 		return $html;
+	}
+
+	/**
+	 * Conditional return true if we should display advanced meeting logs
+	 */
+	public static function display_advanced_meeting_logs()
+	{
+
+		$display = false;
+
+		// exit early if we are not displaying advanced meeting update information
+		if ('on' === get_option('advanced_meetings_time_display')) {
+			$display = true;
+		}
+
+		return (bool) $display;
 	}
 
 	public function add_meeting_feed()
@@ -998,7 +1014,10 @@ if (class_exists('ProudMetaBox')) {
 }
 
 /**
- * Helper function
+ * Lets us call the post published and modified HTML as a helper
+ *
+ * @since  2026.01.12
+ * @author Curtis <curtis@proudcity.com>
  */
 function proud_meeting_advanced_updates($post_id, $meta_key)
 {
@@ -1007,4 +1026,19 @@ function proud_meeting_advanced_updates($post_id, $meta_key)
 	}
 
 	return ProudMeeting::display_meeting_advanced_meeting_updates($post_id, $meta_key);
+}
+
+/**
+ * Returns true if we should display the advanced meeting logs
+ *
+ * @since  2026.01.13
+ * @author Curtis <curtis@proudcity.com>
+ */
+function proud_meeting_display_advanced_meeting_modified_logs()
+{
+	if (! class_exists(__NAMESPACE__ . '\ProudMeeting')) {
+		return '';
+	}
+
+	return ProudMeeting::display_advanced_meeting_logs();
 }

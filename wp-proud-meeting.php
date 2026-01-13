@@ -129,6 +129,12 @@ class ProudMeeting extends \ProudPlugin
 		return $html;
 	}
 
+	/**
+	 * Returns the HTML for our dates modified
+	 *
+	 * @since  2026.01.13
+	 * @author Curtis <curtis@proudcity.com>
+	 */
 	private static function get_modified_array($post_id, $meta_key)
 	{
 
@@ -139,6 +145,9 @@ class ProudMeeting extends \ProudPlugin
 		if (! is_array($modified_array)) {
 			return '';
 		}
+
+		// Show most recent updates first
+		rsort($modified_array, SORT_NUMERIC);
 
 		$html .= '<p class="text-muted" id="published-date">Modified on:</p>';
 

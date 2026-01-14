@@ -4,7 +4,7 @@
 Plugin Name: Proud Meeting
 Plugin URI: http://proudcity.com/
 Description: Declares an Meeting custom post type.
-Version: 2026.01.14.0959
+Version: 2026.01.14.1228
 Author: ProudCity
 Author URI: http://proudcity.com/
 License: Affero GPL v3
@@ -834,28 +834,19 @@ if (class_exists('ProudMetaBox')) {
 			parent::settings_content($post);
 			// Enqueue JS
 			$path = plugins_url('assets/', __FILE__);
-			wp_enqueue_script('moment-js', $path . 'vendor/bootstrap-datetimepicker/moment.min.js');
-			wp_enqueue_style('glyphicons-css', '//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css');
-			wp_enqueue_script('bootstrap-datetimepicker-js', $path . 'vendor/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js');
-			wp_enqueue_style('bootstrap-datetimepicker-css', $path . 'vendor/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css');
-			wp_enqueue_script('youtube-api', '//www.youtube.com/iframe_api');
-			wp_enqueue_script('handlebars', $path . 'vendor/handlebars.min.js');
-			wp_enqueue_style('proud-meeting-css', $path . 'css/proud-meeting.css');
-			wp_enqueue_script('proud-meeting-youtube-bookmarks-js', $path . 'js/youtube-bookmarks.js');
+			wp_enqueue_script('moment-js', $path . 'vendor/bootstrap-datetimepicker/moment.min.js', '', esc_attr($plugin_data['Version']), 'all');
+			wp_enqueue_style('glyphicons-css', '//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css', '', esc_attr($plugin_data['Version']), 'all');
+			wp_enqueue_script('bootstrap-datetimepicker-js', $path . 'vendor/bootstrap-datetimepicker/bootstrap-datetimepicker.min.js', '', esc_attr($plugin_data['Version']), 'all');
+			wp_enqueue_style('bootstrap-datetimepicker-css', $path . 'vendor/bootstrap-datetimepicker/bootstrap-datetimepicker.min.css', '', esc_attr($plugin_data['Version']), 'all');
+			wp_enqueue_script('youtube-api', '//www.youtube.com/iframe_api', '', esc_attr($plugin_data['Version']), 'all');
+			wp_enqueue_script('handlebars', $path . 'vendor/handlebars.min.js', '', esc_attr($plugin_data['Version']), 'all');
+			wp_enqueue_style('proud-meeting-css', $path . 'css/proud-meeting.css', '', esc_attr($plugin_data['Version']), 'all');
+			wp_enqueue_script('proud-meeting-youtube-bookmarks-js', $path . 'js/youtube-bookmarks.js', '', esc_attr($plugin_data['Version']), 'all');
 
 			wp_enqueue_script('proud-meeting-js', $path . 'js/proud-meeting.js', 'jquery', esc_attr($plugin_data['Version']), 'all');
 			wp_localize_script('proud-meeting-js', 'ProudMeeting', [
 				'proudMeetingNonce' => wp_create_nonce('proud_track_metabox_change')
 			]);
-
-			//    // Get field ids
-			//    $options = $this->get_field_ids();
-			//    // Set global lat / lng
-			//    $options['lat'] = get_option('lat', true);
-			//    $options['lng'] = get_option('lng', true);
-			//    wp_localize_script( 'google-places-field', 'meeting', $options );
-			//    wp_enqueue_script( 'google-places-field' );
-
 		}
 
 

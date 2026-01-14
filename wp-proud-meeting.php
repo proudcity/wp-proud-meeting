@@ -4,7 +4,7 @@
 Plugin Name: Proud Meeting
 Plugin URI: http://proudcity.com/
 Description: Declares an Meeting custom post type.
-Version: 2026.01.13.1202
+Version: 2026.01.14.0959
 Author: ProudCity
 Author URI: http://proudcity.com/
 License: Affero GPL v3
@@ -827,6 +827,10 @@ if (class_exists('ProudMetaBox')) {
 		 */
 		public function settings_content($post)
 		{
+
+			// version plugin
+			$plugin_data = get_plugin_data(__FILE__);
+
 			parent::settings_content($post);
 			// Enqueue JS
 			$path = plugins_url('assets/', __FILE__);
@@ -839,7 +843,7 @@ if (class_exists('ProudMetaBox')) {
 			wp_enqueue_style('proud-meeting-css', $path . 'css/proud-meeting.css');
 			wp_enqueue_script('proud-meeting-youtube-bookmarks-js', $path . 'js/youtube-bookmarks.js');
 
-			wp_enqueue_script('proud-meeting-js', $path . 'js/proud-meeting.js');
+			wp_enqueue_script('proud-meeting-js', $path . 'js/proud-meeting.js', 'jquery', esc_attr($plugin_data['Version']), 'all');
 			wp_localize_script('proud-meeting-js', 'ProudMeeting', [
 				'proudMeetingNonce' => wp_create_nonce('proud_track_metabox_change')
 			]);

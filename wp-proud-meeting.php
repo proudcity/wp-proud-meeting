@@ -70,7 +70,14 @@ class ProudMeeting extends \ProudPlugin
 
         if (isset($_POST['form-meeting_agenda'][1]['agenda_updated']) && true == $_POST['form-meeting_agenda'][1]['agenda_updated']) {
             $meta_key_array[] = '_proud_meeting_agenda_modified';
-            update_option('sfn_test_agenda', '_proud_meeting_agenda_modified');
+        }
+
+        if (isset($_POST['form-meeting_agenda_packet'][1]['agenda_packet_updated']) && true == $_POST['form-meeting_agenda_packet'][1]['agenda_packet_updated']) {
+            $meta_key_array[] = '_proud_meeting_agenda_packet_modified';
+        }
+
+        if (isset($_POST['form-meeting_minutes'][1]['minutes_updated']) && true == $_POST['form-meeting_minutes'][1]['minutes_updated']) {
+            $meta_key_array[] = '_proud_meeting_minutes_modified';
         }
 
 

@@ -108,7 +108,6 @@
                             editorId: editorId
                         };
                         markChanged(info);
-                        sendAjaxDebounced(info);
                     };
 
                     // Key events + content changes + undo/redo

@@ -46,7 +46,7 @@ class ProudMeeting extends \ProudPlugin
         add_filter('manage_meeting_posts_columns', array($this, 'set_meeting_columns'));
         add_action('manage_meeting_posts_custom_columns', array($this, 'set_meeting_author'), 10, 2);
 
-        //add_action('save_post_meeting', array($this, 'track_meeting_modified'));
+        add_action('save_post_meeting', array($this, 'track_meeting_modified'));
     }
 
     /**
@@ -60,34 +60,27 @@ class ProudMeeting extends \ProudPlugin
 
         // If this is a revision, get real post ID.
         $parent_id = wp_is_post_revision($post_id);
-
         if (false !== $parent_id) {
             $post_id = $parent_id;
         }
 
         $meta_key_array = array();
 
-        update_option('sfn_test', $_POST['form-meeting_agenda_packet']['1']);
+        update_option('sfn_test', $_POST['form-meeting_agenda'][1]['agenda_updated']);
 
-        if (
-            isset($_POST['form-meeting_agenda']['1']['agenda_updated'])
-            && true === $_POST['form-meeting_agenda']['1']['agenda_updated']
-        ) {
-
+        if (isset($_POST['form-meeting_agenda'][1]['agenda_updated']) && true == $_POST['form-meeting_agenda'][1]['agenda_updated']) {
             $meta_key_array[] = '_proud_meeting_agenda_modified';
-        } elseif (
-            isset($_POST['form-meeting_agenda']['1']['agenda_updated'])
-            && true === $_POST['form-meeting_agenda']['1']['agenda_updated']
-        ) {
+        }
+
+        if (isset($_POST['form-meeting_agenda_packet'][1]['agenda_packet_updated']) && true == $_POST['form-meeting_agenda_packet'][1]['agenda_packet_updated']) {
             $meta_key_array[] = '_proud_meeting_agenda_packet_modified';
-        } elseif (
-            isset($_POST['form-meeting_agenda']['1']['agenda_updated'])
-            && true === $_POST['form-meeting_agenda']['1']['agenda_updated']
-        ) {
+        }
+
+        if (isset($_POST['form-meeting_minutes'][1]['minutes_updated']) && true == $_POST['form-meeting_minutes'][1]['minutes_updated']) {
             $meta_key_array[] = '_proud_meeting_minutes_modified';
         }
 
-        // loop through each of the assigned metakeys to save the new date for updates
+
         foreach ($meta_key_array as $meta_key) {
             $timestamp = (int) current_time('timestamp', true);
             $history = get_post_meta(absint($post_id), sanitize_key($meta_key), true);
@@ -511,16 +504,16 @@ if (class_exists('ProudMetaBox')) {
                     '#type' => 'editor',
                     '#title' => __pcHelp('Agenda Text'),
                 ],
+                'agenda_updated' => [
+                    '#type' => 'hidden',
+                    '#class' => 'updated',
+                ],
                 'agenda_attachment' => [
                     '#type' => 'select_file',
                     '#title' => __pcHelp('Attachment'),
                 ],
                 'agenda_attachment_meta' => [
                     '#type' => 'hidden',
-                ],
-                'agenda_updated' => [
-                    '#type' => 'hidden',
-                    '#class' => 'updated',
                 ],
                 'agenda_attachment_preview' => [
                     '#type' => 'checkbox',

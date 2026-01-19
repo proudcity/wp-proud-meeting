@@ -45,8 +45,6 @@
                 }
                 if (!$container.length) return;
 
-                $($container).find('.updated').val('true');
-
                 var postId = getPostId();
 
                 var opts = $.extend({
@@ -60,29 +58,6 @@
                 // making sure we have a unique ns var for each metabox
                 var ns = '.proudWatch' + containerSelector.replace(/[^a-z0-9]/gi, '_');
 
-                function sendAjax(info) {
-                    // Even if nonce missing, still run onChange/class updates
-                    if (!postId || !opts.nonce || !window.ajaxurl) return;
-
-                    $.post(window.ajaxurl, {
-                        action: opts.action,
-                        nonce: opts.nonce,
-                        post_id: postId,
-                        meta_key: opts.metaKey,
-                        container: containerSelector,
-                        change_type: info.type,
-                        event: info.event
-                    })
-                        .done(function () {
-                            $container.addClass('ajax-saved').removeClass('ajax-failed');
-                        })
-                        .fail(function () {
-                            $container.addClass('ajax-failed');
-                        });
-                }
-
-                var sendAjaxDebounced = debounce(sendAjax, opts.debounceMs);
-
                 function markChanged(info) {
                     opts.onChange(info); // this is where you add has-changes
                 }
@@ -93,9 +68,6 @@
                     .on('input' + ns + ' change' + ns, '.wp-editor-area', function (e) {
                         var info = { type: 'editor', event: e.type, target: this, container: $container[0] };
                         markChanged(info);
-
-                        if (e.type === 'input') sendAjaxDebounced(info);
-                        else sendAjax(info);
                     });
 
                 // ---- 2) Upload/remove clicks ----
@@ -109,7 +81,6 @@
                             container: $container[0]
                         };
                         markChanged(info);
-                        sendAjax(info);
                     });
 
 
@@ -186,6 +157,7 @@
                 metaKey: '_proud_meeting_agenda_modified',
                 onChange: function (info) {
                     $(info.container).addClass('has-changes');
+                    $(info.container).find('.updated').val('true');
                 }
             });
 
@@ -196,6 +168,7 @@
                 metaKey: '_proud_meeting_agenda_packet_modified',
                 onChange: function (info) {
                     $(info.container).addClass('has-changes');
+                    $(info.container).find('.updated').val('true');
                 }
             });
 
@@ -206,6 +179,7 @@
                 metaKey: '_proud_meeting_minutes_modified',
                 onChange: function (info) {
                     $(info.container).addClass('has-changes');
+                    $(info.container).find('.updated').val('true');
                 }
             });
 

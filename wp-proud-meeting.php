@@ -87,7 +87,7 @@ class ProudMeeting extends \ProudPlugin
             $meta_key_array[] = '_proud_meeting_minutes_modified';
         }
 
-
+        // loop through each of the assigned metakeys to save the new date for updates
         foreach ($meta_key_array as $meta_key) {
             $timestamp = (int) current_time('timestamp', true);
             $history = get_post_meta(absint($post_id), sanitize_key($meta_key), true);

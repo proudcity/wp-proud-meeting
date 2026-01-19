@@ -46,7 +46,7 @@ class ProudMeeting extends \ProudPlugin
         add_filter('manage_meeting_posts_columns', array($this, 'set_meeting_columns'));
         add_action('manage_meeting_posts_custom_columns', array($this, 'set_meeting_author'), 10, 2);
 
-        add_action('wp_ajax_proud_track_metabox_change', array($this, 'track_meeting_modified'));
+        add_action('save_post_meeting', array($this, 'track_meeting_modified'));
     }
 
     /**
@@ -55,58 +55,47 @@ class ProudMeeting extends \ProudPlugin
      * @since  2025.01.12
      * @author Curtis <curtis@proudcity.com>
      */
-    public function track_meeting_modified()
+    public function track_meeting_modified($post_id)
     {
-        check_ajax_referer('proud_track_metabox_change', 'nonce');
 
-        $post_id = isset($_POST['post_id']) ? absint($_POST['post_id']) : 0;
-        if (! $post_id) {
-            wp_send_json_error('Missing post_id');
+        // If this is a revision, get real post ID.
+        $parent_id = wp_is_post_revision($post_id);
+        if (false !== $parent_id) {
+            $post_id = $parent_id;
         }
 
-        if (! current_user_can('edit_post', $post_id)) {
-            wp_send_json_error('Permission denied');
+        $meta_key_array = array();
+
+        update_option('sfn_test', $_POST['form-meeting_agenda'][1]['agenda_updated']);
+
+        if (isset($_POST['form-meeting_agenda'][1]['agenda_updated']) && true == $_POST['form-meeting_agenda'][1]['agenda_updated']) {
+            $meta_key_array[] = '_proud_meeting_agenda_modified';
+            update_option('sfn_test_agenda', '_proud_meeting_agenda_modified');
         }
 
-        $meta_key   = sanitize_key($_POST['meta_key'] ?? '');
 
-        $timestamp = (int) current_time('timestamp', true);
-        $history = get_post_meta(absint($post_id), sanitize_key($meta_key), true);
+        foreach ($meta_key_array as $meta_key) {
+            $timestamp = (int) current_time('timestamp', true);
+            $history = get_post_meta(absint($post_id), sanitize_key($meta_key), true);
 
-        // Normalize to array.
-        if (empty($history)) {
-            $history = [];
-        } elseif (is_string($history)) {
-            // In case legacy code stored a single timestamp string.
-            $history = [(int) $history];
-        } elseif (! is_array($history)) {
-            // Any unexpected shape: reset to empty to avoid corrupting data.
-            $history = [];
-        }
-
-        // Ensure we only have ints.
-        $history = array_values(array_filter(array_map('intval', $history)));
-
-        // If the new timestamp is within 2 minutes of ANY existing entry, drop it.
-        $window = 120; // seconds
-        foreach ($history as $t) {
-            if (abs($timestamp - $t) <= $window) {
-                wp_send_json_success([
-                    'skipped'   => true,
-                    'reason'    => 'within_2_minutes',
-                    'timestamp' => $timestamp,
-                ]);
+            // Normalize to array.
+            if (empty($history)) {
+                $history = [];
+            } elseif (is_string($history)) {
+                // In case legacy code stored a single timestamp string.
+                $history = [(int) $history];
+            } elseif (! is_array($history)) {
+                // Any unexpected shape: reset to empty to avoid corrupting data.
+                $history = [];
             }
+
+            // Ensure we only have ints.
+            $history = array_values(array_filter(array_map('intval', $history)));
+
+            $history[] = $timestamp;
+
+            update_post_meta(absint($post_id), sanitize_key($meta_key), $history);
         }
-
-        $history[] = $timestamp;
-
-        update_post_meta(absint($post_id), sanitize_key($meta_key), $history);
-
-        wp_send_json_success([
-            'skipped'   => false,
-            'timestamp' => $timestamp,
-        ]);
     }
 
     public static function display_meeting_advanced_meeting_updates($post_id, $meta_key)

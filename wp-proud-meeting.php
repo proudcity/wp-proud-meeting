@@ -66,8 +66,6 @@ class ProudMeeting extends \ProudPlugin
 
         $meta_key_array = array();
 
-        update_option('sfn_test', $_POST['form-meeting_agenda'][1]['agenda_updated']);
-
         if (isset($_POST['form-meeting_agenda'][1]['agenda_updated']) && true == $_POST['form-meeting_agenda'][1]['agenda_updated']) {
             $meta_key_array[] = '_proud_meeting_agenda_modified';
         }
